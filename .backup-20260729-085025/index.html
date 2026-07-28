@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="加来広告事務所｜デザイン・ブランディング・写真・Web制作" />
+  <title>加来広告事務所 | KAKU DESIGN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="inkCanvas" aria-hidden="true"></canvas>
+  <div class="paper-grain" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="トップへ">
+      <span class="brand-ja">加来広告事務所</span>
+      <span class="brand-en">KAKU DESIGN</span>
+    </a>
+    <button class="menu-button" type="button" aria-label="メニューを開く" aria-expanded="false">
+      <span>MENU</span><i></i><i></i>
+    </button>
+  </header>
+
+  <nav class="drawer" aria-hidden="true">
+    <a href="#about">ABOUT</a>
+    <a href="#works">WORKS</a>
+    <a href="#service">SERVICE</a>
+    <a href="#contact">CONTACT</a>
+  </nav>
+
+  <main>
+    <section id="top" class="hero section-light">
+      <div class="hero-copy">
+        <p class="vertical-sub">想いを、かたちに。</p>
+        <h1>加来広告事務所</h1>
+        <div class="hero-line"></div>
+        <p class="services">DESIGN<br>BRANDING<br>PHOTOGRAPHY<br>WEB</p>
+      </div>
+      <div class="scroll-mark"><span>SCROLL</span><i></i></div>
+    </section>
+
+    <section id="about" class="section section-light reveal">
+      <div class="section-index">01</div>
+      <div class="section-content narrow">
+        <p class="eyebrow">ABOUT</p>
+        <h2>想いを、かたちに。</h2>
+        <p>
+          加来広告事務所は、デザイン・ブランディング・写真・Webを通じて、
+          伝えたい想いを、記憶に残るかたちへ整えます。
+        </p>
+        <p>
+          飾りすぎず、語りすぎず。必要なものだけを残し、
+          その人や仕事らしさが見える表現をつくります。
+        </p>
+      </div>
+    </section>
+
+    <section id="works" class="section section-dark reveal">
+      <div class="section-index">02</div>
+      <div class="section-content">
+        <p class="eyebrow">WORKS</p>
+        <h2>制作実績</h2>
+        <div class="works-grid">
+          <article class="work-card">
+            <div class="work-visual mark-tsubasa">味一番<br>つばさ</div>
+            <p class="work-title">味一番つばさ</p>
+            <p class="work-type">BRANDING / WEB</p>
+          </article>
+          <article class="work-card">
+            <div class="work-visual mark-band">YOJI<br>&amp; HANA</div>
+            <p class="work-title">YOJI &amp; HANA</p>
+            <p class="work-type">ART DIRECTION / PHOTO</p>
+          </article>
+          <article class="work-card">
+            <div class="work-visual mark-rio">Rio inc.</div>
+            <p class="work-title">株式会社 吏央</p>
+            <p class="work-type">LOGO / BRANDING</p>
+          </article>
+          <article class="work-card">
+            <div class="work-visual mark-web">WEB<br>DESIGN</div>
+            <p class="work-title">Webサイト制作</p>
+            <p class="work-type">WEB DESIGN</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="service" class="section section-light reveal">
+      <div class="section-index">03</div>
+      <div class="section-content">
+        <p class="eyebrow">SERVICE</p>
+        <h2>できること</h2>
+        <div class="service-grid">
+          <article><span>01</span><h3>GRAPHIC DESIGN</h3><p>ロゴ、印刷物、販促物など、伝えるための形を整えます。</p></article>
+          <article><span>02</span><h3>WEB DESIGN</h3><p>見た目だけでなく、使いやすく更新しやすいWebサイトを制作します。</p></article>
+          <article><span>03</span><h3>PHOTOGRAPHY</h3><p>人物、商品、店舗など、空気感まで伝わる写真を撮影・調整します。</p></article>
+          <article><span>04</span><h3>BRANDING</h3><p>名前、言葉、ロゴ、見せ方を揃え、仕事の印象をつくります。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section section-light contact reveal">
+      <div class="section-index">04</div>
+      <div class="section-content contact-layout">
+        <div>
+          <p class="eyebrow">CONTACT</p>
+          <h2>ご相談・お見積り</h2>
+          <p>制作のご相談は、メールでお気軽にお問い合わせください。</p>
+        </div>
+        <a class="contact-button" href="mailto:info@example.com">MAILを送る</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>
+      <p class="footer-ja">加来広告事務所</p>
+      <p class="footer-en">KAKU DESIGN</p>
+    </div>
+    <p>© 2026 KAKU DESIGN OFFICE</p>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>
