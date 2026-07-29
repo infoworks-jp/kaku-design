@@ -1,283 +1,265 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Description" content="加来広告事務所 — 想いを、かたちに。">
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.5">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Hiragino Mincho ProN'; -webkit-text-stroke: #000000}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Hiragino Mincho ProN'; -webkit-text-stroke: #000000; min-height: 18.0px}
-    span.s1 {font-kerning: none}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中央経理パートナーズ | 会計・税務・経営支援</title>
+  <style>
+    /* 全体スタイル */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+      color: #333;
+      background-color: #0d1b2a;
+      overflow-x: hidden;
+    }
+
+    /* Three.js GPGPU 水面キャンバス背景 */
+    #webgl-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* 指定された文字のゆらぎアニメーション */
+    .yuragi-char {
+      display: inline-block;
+      animation: char-wave 3s ease-in-out infinite;
+    }
+
+    @keyframes char-wave {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(1deg); }
+    }
+
+    /* メインコンテンツレイアウト */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* ヘッダー */
+    header {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h1 {
+      font-size: 2.2rem;
+      color: #1b263b;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: #415a77;
+    }
+
+    /* カード・セクション */
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: #1b263b;
+      border-bottom: 2px solid #778da9;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    /* サービスリスト */
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .service-item {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #415a77;
+    }
+    .service-item h3 {
+      font-size: 1.1rem;
+      color: #0d1b2a;
+      margin-bottom: 8px;
+    }
+
+    /* お問い合わせボタン */
+    .contact-btn {
+      display: inline-block;
+      background: #1b263b;
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+    }
+    .contact-btn:hover {
+      background: #415a77;
+      transform: translateY(-2px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #e0e1dd;
+      font-size: 0.9rem;
+    }
   </style>
+  <!-- Three.js 外部ライブラリ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="ja"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;title&gt;中央経理パートナーズ | 会計・税務・経営支援&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* 全体スタイル */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>* {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>box-sizing: border-box;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #333;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background-color: #0d1b2a;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>overflow-x: hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* Three.js GPGPU 水面キャンバス背景 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>#webgl-container {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>position: fixed;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>top: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>left: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>width: 100vw;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>height: 100vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>z-index: -1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>pointer-events: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* 指定された文字のゆらぎアニメーション */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.yuragi-char {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>display: inline-block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>animation: char-wave 3s ease-in-out infinite;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>@keyframes char-wave {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>0%, 100% { transform: translateY(0) rotate(0deg); }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>50% { transform: translateY(-3px) rotate(1deg); }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* メインコンテンツレイアウト */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.container {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>max-width: 1000px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin: 0 auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 40px 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* ヘッダー */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 60px 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: rgba(255, 255, 255, 0.85);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>backdrop-filter: blur(10px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 30px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>box-shadow: 0 10px 30px rgba(0,0,0,0.2);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>h1 {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 2.2rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #1b263b;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>letter-spacing: 2px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.subtitle {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 1.1rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #415a77;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* カード・セクション */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.card {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: rgba(255, 255, 255, 0.9);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>backdrop-filter: blur(8px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 30px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 25px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>box-shadow: 0 5px 20px rgba(0,0,0,0.15);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>h2 {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 1.5rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #1b263b;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-bottom: 2px solid #778da9;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding-bottom: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* サービスリスト */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.service-grid {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>display: grid;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>gap: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.service-item {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #f8f9fa;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-left: 4px solid #415a77;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.service-item h3 {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 1.1rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #0d1b2a;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-bottom: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>/* お問い合わせボタン */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.contact-btn {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>display: inline-block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #1b263b;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #fff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 14px 32px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>border-radius: 30px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>text-decoration: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-weight: bold;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>transition: all 0.3s ease;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>margin-top: 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>.contact-btn:hover {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>background: #415a77;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>transform: translateY(-2px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>footer {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>padding: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: #e0e1dd;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>font-size: 0.9rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;!-- Three.js 外部ライブラリ --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"&gt;&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;!-- WebGL 水面背景 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div id="webgl-container"&gt;&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;div class="container"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- ヘッダー --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;header&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;h1 id="yuragi-title"&gt;中央経理パートナーズ&lt;/h1&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;p class="subtitle" id="yuragi-sub"&gt;信頼と実績で経営を強力にサポートする会計パートナー&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- 概要 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;h2 id="yuragi-h2-1"&gt;私たちについて&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;p&gt;中央経理は、長年にわたり中小企業の税務・会計・経営相談を中心に最適なプロフェッショナルサービスを提供しています。変化の激しい現代において、確かな知識と迅速な対応でお客様の事業成長をバックアップします。&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- サービス一覧 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;h2 id="yuragi-h2-2"&gt;主な事業内容&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;div class="service-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="service-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;h3&gt;税務顧問・申告&lt;/h3&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;p&gt;法人税・所得税・消費税など各種税務申告および日常的な税務相談をお受けします。&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="service-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;h3&gt;会計・記帳代行&lt;/h3&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;p&gt;月次決算の迅速化と正確な会計データの構築で経営判断をスピード化します。&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="service-item"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;h3&gt;経営支援・コンサルティング&lt;/h3&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>&lt;p&gt;資金繰り計画の作成や事業承継、経営改善計画の策定を力強くサポートします。&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- お問い合わせ --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="card" style="text-align: center;"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;h2 id="yuragi-h2-3"&gt;お問い合わせ&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;p&gt;ご相談・ご質問など、お気軽にお問い合わせください。&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;a href="https://www.chuo-keiri.jp/" target="_blank" class="contact-btn"&gt;公式サイトを開く&lt;/a&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;footer&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>&lt;p&gt;&amp;copy; 中央経理パートナーズ All Rights Reserved.&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/footer&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;script&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 1. 指定のゆらぎクラス（.yuragi-char）をテキスト文字へ自動適用する処理</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function applyYuragiEffect(elementId) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const el = document.getElementById(elementId);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>if (!el) return;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const text = el.innerText;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>el.innerHTML = '';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>[...text].forEach((char, index) =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const span = document.createElement('span');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>span.className = 'yuragi-char';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>span.style.animationDelay = `${(index * 0.15) % 3}s`;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>span.innerText = char === ' ' ? '\u00A0' : char;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>el.appendChild(span);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>});</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 対象要素にゆらぎを適用</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>applyYuragiEffect('yuragi-title');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>applyYuragiEffect('yuragi-sub');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>applyYuragiEffect('yuragi-h2-1');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>applyYuragiEffect('yuragi-h2-2');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>applyYuragiEffect('yuragi-h2-3');</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 2. Three.js 水面（GPGPU風波紋）波シミュレーション</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const container = document.getElementById('webgl-container');</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const scene = new THREE.Scene();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>camera.position.set(0, -10, 12);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>camera.lookAt(0, 0, 0);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>renderer.setSize(window.innerWidth, window.innerHeight);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>renderer.setPixelRatio(window.devicePixelRatio);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>container.appendChild(renderer.domElement);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 水面ジオメトリ</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const geometry = new THREE.PlaneGeometry(30, 20, 64, 64);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const material = new THREE.MeshPhongMaterial({</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>color: 0x1b4965,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>emissive: 0x0b2545,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>specular: 0x62b6cb,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>shininess: 80,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>wireframe: false,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>flatShading: true</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>});</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const waterMesh = new THREE.Mesh(geometry, material);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>scene.add(waterMesh);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// ライティング</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>scene.add(ambientLight);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const dirLight = new THREE.DirectionalLight(0xbee9e8, 1.2);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>dirLight.position.set(5, 10, 15);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>scene.add(dirLight);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 波のアニメーション計算</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>let clock = new THREE.Clock();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>function animate() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>requestAnimationFrame(animate);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const t = clock.getElapsedTime() * 1.5;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const pos = geometry.attributes.position;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>for (let i = 0; i &lt; pos.count; i++) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const u = pos.getX(i);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const v = pos.getY(i);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const z = Math.sin(u * 0.5 + t) * 0.4 + Math.cos(v * 0.5 + t * 0.8) * 0.4;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>pos.setZ(i, z);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>pos.needsUpdate = true;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>renderer.render(scene, camera);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>animate();</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>// 画面リサイズ対応</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>window.addEventListener('resize', () =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>camera.aspect = window.innerWidth / window.innerHeight;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>camera.updateProjectionMatrix();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>renderer.setSize(window.innerWidth, window.innerHeight);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>});</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+
+  <!-- WebGL 水面背景 -->
+  <div id="webgl-container"></div>
+
+  <div class="container">
+    <!-- ヘッダー -->
+    <header>
+      <h1 id="yuragi-title">中央経理パートナーズ</h1>
+      <p class="subtitle" id="yuragi-sub">信頼と実績で経営を強力にサポートする会計パートナー</p>
+    </header>
+
+    <!-- 概要 -->
+    <div class="card">
+      <h2 id="yuragi-h2-1">私たちについて</h2>
+      <p>中央経理は、長年にわたり中小企業の税務・会計・経営相談を中心に最適なプロフェッショナルサービスを提供しています。変化の激しい現代において、確かな知識と迅速な対応でお客様の事業成長をバックアップします。</p>
+    </div>
+
+    <!-- サービス一覧 -->
+    <div class="card">
+      <h2 id="yuragi-h2-2">主な事業内容</h2>
+      <div class="service-grid">
+        <div class="service-item">
+          <h3>税務顧問・申告</h3>
+          <p>法人税・所得税・消費税など各種税務申告および日常的な税務相談をお受けします。</p>
+        </div>
+        <div class="service-item">
+          <h3>会計・記帳代行</h3>
+          <p>月次決算の迅速化と正確な会計データの構築で経営判断をスピード化します。</p>
+        </div>
+        <div class="service-item">
+          <h3>経営支援・コンサルティング</h3>
+          <p>資金繰り計画の作成や事業承継、経営改善計画の策定を力強くサポートします。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- お問い合わせ -->
+    <div class="card" style="text-align: center;">
+      <h2 id="yuragi-h2-3">お問い合わせ</h2>
+      <p>ご相談・ご質問など、お気軽にお問い合わせください。</p>
+      <a href="https://www.chuo-keiri.jp/" target="_blank" class="contact-btn">公式サイトを開く</a>
+    </div>
+
+    <footer>
+      <p>&copy; 中央経理パートナーズ All Rights Reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    // 1. 指定のゆらぎクラス（.yuragi-char）をテキスト文字へ自動適用する処理
+    function applyYuragiEffect(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.innerText;
+      el.innerHTML = '';
+      [...text].forEach((char, index) => {
+        const span = document.createElement('span');
+        span.className = 'yuragi-char';
+        span.style.animationDelay = `${(index * 0.15) % 3}s`;
+        span.innerText = char === ' ' ? '\u00A0' : char;
+        el.appendChild(span);
+      });
+    }
+
+    // 対象要素にゆらぎを適用
+    applyYuragiEffect('yuragi-title');
+    applyYuragiEffect('yuragi-sub');
+    applyYuragiEffect('yuragi-h2-1');
+    applyYuragiEffect('yuragi-h2-2');
+    applyYuragiEffect('yuragi-h2-3');
+
+    // 2. Three.js 水面（GPGPU風波紋）波シミュレーション
+    const container = document.getElementById('webgl-container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, -10, 12);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    // 水面ジオメトリ
+    const geometry = new THREE.PlaneGeometry(30, 20, 64, 64);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x1b4965,
+      emissive: 0x0b2545,
+      specular: 0x62b6cb,
+      shininess: 80,
+      wireframe: false,
+      flatShading: true
+    });
+
+    const waterMesh = new THREE.Mesh(geometry, material);
+    scene.add(waterMesh);
+
+    // ライティング
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xbee9e8, 1.2);
+    dirLight.position.set(5, 10, 15);
+    scene.add(dirLight);
+
+    // 波のアニメーション計算
+    let clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime() * 1.5;
+      const pos = geometry.attributes.position;
+
+      for (let i = 0; i < pos.count; i++) {
+        const u = pos.getX(i);
+        const v = pos.getY(i);
+        const z = Math.sin(u * 0.5 + t) * 0.4 + Math.cos(v * 0.5 + t * 0.8) * 0.4;
+        pos.setZ(i, z);
+      }
+      pos.needsUpdate = true;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // 画面リサイズ対応
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
