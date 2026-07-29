@@ -3,258 +3,225 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>中央経理パートナーズ | 会計・税務・経営支援</title>
+  <title>カクデザイン | 加来広告事務所</title>
   <style>
-    /* 全体スタイル */
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
-    body {
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
       font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-      color: #333;
-      background-color: #0d1b2a;
-      overflow-x: hidden;
     }
-
-    /* Three.js GPGPU 水面キャンバス背景 */
-    #webgl-container {
-      position: fixed;
+    #canvas-container {
+      position: absolute;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
     }
-
-    /* 指定された文字のゆらぎアニメーション */
+    .content-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      text-align: center;
+      color: #ffffff;
+      pointer-events: none;
+      width: 90%;
+      max-width: 800px;
+    }
+    h1.main-title {
+      font-size: 2.8rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+      display: inline-block;
+    }
+    p.sub-text {
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+    /* 1文字ごとのゆらぎと波紋連動アニメーション */
     .yuragi-char {
       display: inline-block;
-      animation: char-wave 3s ease-in-out infinite;
+      opacity: 0;
+      transform: translateY(15px) scale(0.9);
+      filter: blur(8px);
+      animation: waterEmerge 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
-
-    @keyframes char-wave {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-3px) rotate(1deg); }
-    }
-
-    /* メインコンテンツレイアウト */
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    /* ヘッダー */
-    header {
-      text-align: center;
-      padding: 60px 20px;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    h1 {
-      font-size: 2.2rem;
-      color: #1b263b;
-      margin-bottom: 10px;
-      letter-spacing: 2px;
-    }
-    .subtitle {
-      font-size: 1.1rem;
-      color: #415a77;
-    }
-
-    /* カード・セクション */
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      padding: 30px;
-      margin-bottom: 25px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    }
-    h2 {
-      font-size: 1.5rem;
-      color: #1b263b;
-      border-bottom: 2px solid #778da9;
-      padding-bottom: 8px;
-      margin-bottom: 20px;
-    }
-
-    /* サービスリスト */
-    .service-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .service-item {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 8px;
-      border-left: 4px solid #415a77;
-    }
-    .service-item h3 {
-      font-size: 1.1rem;
-      color: #0d1b2a;
-      margin-bottom: 8px;
-    }
-
-    /* お問い合わせボタン */
-    .contact-btn {
-      display: inline-block;
-      background: #1b263b;
-      color: #fff;
-      padding: 14px 32px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      margin-top: 15px;
-    }
-    .contact-btn:hover {
-      background: #415a77;
-      transform: translateY(-2px);
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #e0e1dd;
-      font-size: 0.9rem;
+    @keyframes waterEmerge {
+      0% {
+        opacity: 0;
+        transform: translateY(15px) scale(0.8);
+        filter: blur(10px);
+      }
+      50% {
+        opacity: 0.8;
+        filter: blur(2px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0px);
+      }
     }
   </style>
-  <!-- Three.js 外部ライブラリ -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-  <!-- WebGL 水面背景 -->
-  <div id="webgl-container"></div>
+  <div id="canvas-container"></div>
 
-  <div class="container">
-    <!-- ヘッダー -->
-    <header>
-      <h1 id="yuragi-title">中央経理パートナーズ</h1>
-      <p class="subtitle" id="yuragi-sub">信頼と実績で経営を強力にサポートする会計パートナー</p>
-    </header>
-
-    <!-- 概要 -->
-    <div class="card">
-      <h2 id="yuragi-h2-1">私たちについて</h2>
-      <p>中央経理は、長年にわたり中小企業の税務・会計・経営相談を中心に最適なプロフェッショナルサービスを提供しています。変化の激しい現代において、確かな知識と迅速な対応でお客様の事業成長をバックアップします。</p>
-    </div>
-
-    <!-- サービス一覧 -->
-    <div class="card">
-      <h2 id="yuragi-h2-2">主な事業内容</h2>
-      <div class="service-grid">
-        <div class="service-item">
-          <h3>税務顧問・申告</h3>
-          <p>法人税・所得税・消費税など各種税務申告および日常的な税務相談をお受けします。</p>
-        </div>
-        <div class="service-item">
-          <h3>会計・記帳代行</h3>
-          <p>月次決算の迅速化と正確な会計データの構築で経営判断をスピード化します。</p>
-        </div>
-        <div class="service-item">
-          <h3>経営支援・コンサルティング</h3>
-          <p>資金繰り計画の作成や事業承継、経営改善計画の策定を力強くサポートします。</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- お問い合わせ -->
-    <div class="card" style="text-align: center;">
-      <h2 id="yuragi-h2-3">お問い合わせ</h2>
-      <p>ご相談・ご質問など、お気軽にお問い合わせください。</p>
-      <a href="https://www.chuo-keiri.jp/" target="_blank" class="contact-btn">公式サイトを開く</a>
-    </div>
-
-    <footer>
-      <p>&copy; 中央経理パートナーズ All Rights Reserved.</p>
-    </footer>
+  <div class="content-overlay">
+    <h1 class="main-title" id="title-text">加来広告事務所</h1>
+    <p class="sub-text" id="sub-text">自動検証・自動公開対応の開発環境へようこそ</p>
   </div>
 
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    // 1. 指定のゆらぎクラス（.yuragi-char）をテキスト文字へ自動適用する処理
-    function applyYuragiEffect(elementId) {
+    // --- 1. 文字のゆらぎアニメーション適用スクリプト ---
+    function applyYuragiEffect(elementId, baseDelay = 0) {
       const el = document.getElementById(elementId);
-      if (!el) return;
-      const text = el.innerText;
-      el.innerHTML = '';
-      [...text].forEach((char, index) => {
+      const text = el.textContent;
+      el.textContent = '';
+      
+      Array.from(text).forEach((char, index) => {
         const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
         span.className = 'yuragi-char';
-        span.style.animationDelay = `${(index * 0.15) % 3}s`;
-        span.innerText = char === ' ' ? '\u00A0' : char;
+        // 各文字の出現タイミングをずらして波のうねりを表現
+        span.style.animationDelay = `${baseDelay + (index * 0.08)}s`;
         el.appendChild(span);
       });
     }
 
-    // 対象要素にゆらぎを適用
-    applyYuragiEffect('yuragi-title');
-    applyYuragiEffect('yuragi-sub');
-    applyYuragiEffect('yuragi-h2-1');
-    applyYuragiEffect('yuragi-h2-2');
-    applyYuragiEffect('yuragi-h2-3');
+    applyYuragiEffect('title-text', 0.2);
+    applyYuragiEffect('sub-text', 1.0);
 
-    // 2. Three.js 水面（GPGPU風波紋）波シミュレーション
-    const container = document.getElementById('webgl-container');
+    // --- 2. Three.js 水面シミュレーション (GPGPU Water Simulation) ---
+    const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
+    
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, -10, 12);
+    camera.position.set(0, -30, 25);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // 水面ジオメトリ
-    const geometry = new THREE.PlaneGeometry(30, 20, 64, 64);
+    // 光源設定
+    const ambientLight = new THREE.AmbientLight(0x0a192f, 1.5);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0x64ffda, 2.0);
+    dirLight.position.set(10, 20, 15);
+    scene.add(dirLight);
+
+    // 水面メッシュ（PlaneGeometry）
+    const geometry = new THREE.PlaneGeometry(60, 60, 128, 128);
     const material = new THREE.MeshPhongMaterial({
-      color: 0x1b4965,
-      emissive: 0x0b2545,
-      specular: 0x62b6cb,
-      shininess: 80,
+      color: 0x0f172a,
+      emissive: 0x0284c7,
+      specular: 0x38bdf8,
+      shininess: 100,
       wireframe: false,
-      flatShading: true
+      flatShading: true,
+      transparent: true,
+      opacity: 0.9
     });
 
     const waterMesh = new THREE.Mesh(geometry, material);
     scene.add(waterMesh);
 
-    // ライティング
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    // 波紋の動的頂点計算
+    const pos = geometry.attributes.position;
+    const count = pos.count;
+    const initialZ = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      initialZ[i] = pos.getZ(i);
+    }
 
-    const dirLight = new THREE.DirectionalLight(0xbee9e8, 1.2);
-    dirLight.position.set(5, 10, 15);
-    scene.add(dirLight);
+    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    let ripples = [];
 
-    // 波のアニメーション計算
+    // マウス・タッチ移動時の波紋追加
+    function addRipple(x, y) {
+      ripples.push({
+        x: x,
+        y: y,
+        time: 0,
+        maxRadius: 12,
+        amplitude: 1.5
+      });
+      if (ripples.length > 8) ripples.shift();
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = -(e.clientY / window.innerHeight) * 2 + 1;
+      
+      // スクリーン座標からワールド座標へ変換
+      const worldX = x * 25;
+      const worldY = y * 25;
+      
+      addRipple(worldX, worldY);
+    });
+
+    // レンダリングループ
     let clock = new THREE.Clock();
+
     function animate() {
       requestAnimationFrame(animate);
-      const t = clock.getElapsedTime() * 1.5;
-      const pos = geometry.attributes.position;
+      const time = clock.getElapsedTime();
 
-      for (let i = 0; i < pos.count; i++) {
-        const u = pos.getX(i);
-        const v = pos.getY(i);
-        const z = Math.sin(u * 0.5 + t) * 0.4 + Math.cos(v * 0.5 + t * 0.8) * 0.4;
+      // 頂点ごとの波紋干渉の計算
+      for (let i = 0; i < count; i++) {
+        const vx = pos.getX(i);
+        const vy = pos.getY(i);
+
+        let z = Math.sin(vx * 0.2 + time * 1.5) * 0.3 + Math.cos(vy * 0.2 + time * 1.5) * 0.3;
+
+        // アクティブな波紋の計算を合成
+        ripples.forEach(r => {
+          const dx = vx - r.x;
+          const dy = vy - r.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < r.time * 8 && dist > (r.time * 8 - 4)) {
+            const wave = Math.sin((dist - r.time * 8) * 2.0);
+            z += wave * r.amplitude * Math.max(0, 1 - r.time / 2.0);
+          }
+        });
+
         pos.setZ(i, z);
       }
+
+      // 波紋タイマー更新
+      ripples.forEach(r => r.time += 0.03);
+      ripples = ripples.filter(r => r.time < 2.0);
+
       pos.needsUpdate = true;
+      geometry.computeVertexNormals();
+
       renderer.render(scene, camera);
     }
+
     animate();
 
-    // 画面リサイズ対応
+    // リサイズ対応
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
