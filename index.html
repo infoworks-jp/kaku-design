@@ -29,7 +29,7 @@
   <div class="overlay"><div class="overlay-inner"><h1 id="title">中央経理センター</h1><p id="lead">信頼と実績で、企業の経理と経営を支える。</p></div></div>
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260729-08</div>
+  <div id="build">build 20260729-09</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
@@ -53,7 +53,10 @@ function applyControlsState(){
   const stats=doc.getElementById('three-stats');
   if(info) info.style.setProperty('display','none','important');
   if(stats) stats.style.setProperty('display','none','important');
-  if(gui) gui.style.setProperty('display',controlsVisible?'':'none','important');
+  if(gui){
+    if(controlsVisible) gui.style.removeProperty('display');
+    else gui.style.setProperty('display','none','important');
+  }
   return Boolean(gui&&stats);
 }
 
@@ -71,8 +74,8 @@ function replaceRequired(html,search,replacement,label){
 }
 
 function prepareOfficialHtml(html){
-  const iframeCss='<style>#info,#three-stats{display:none!important}html.ui-hidden #three-gui{display:none!important}</style>';
-  html=html.replace(/<head([^>]*)>/i,`<head$1><base href="${EX}">${iframeCss}<script>document.documentElement.classList.add('ui-hidden')<\/script>`);
+  const iframeCss='<style>#info,#three-stats{display:none!important}</style>';
+  html=html.replace(/<head([^>]*)>/i,`<head$1><base href="${EX}">${iframeCss}`);
   html=replaceRequired(html,'stats = new Stats();',"stats = new Stats(); stats.dom.id = 'three-stats'; stats.dom.style.setProperty('display','none','important');",'Stats');
   html=replaceRequired(html,'const gui = new GUI();',"const gui = new GUI(); gui.domElement.id = 'three-gui'; gui.domElement.style.setProperty('display','none','important');",'GUI');
   html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',`renderer.setPixelRatio( Math.min( window.devicePixelRatio, ${isMobile?'1':'1.75'} ) );`,'pixelRatio');
@@ -85,7 +88,7 @@ function prepareOfficialHtml(html){
 }
 
 const timeout=setTimeout(()=>status.textContent='読み込みに時間がかかっています。通信状態を確認してください。',15000);
-fetch(`${SOURCE}?v=202607292359`,{cache:'no-store'})
+fetch(`${SOURCE}?v=202607300005`,{cache:'no-store'})
   .then(r=>{if(!r.ok)throw new Error(`公式HTML HTTP ${r.status}`);return r.text()})
   .then(html=>{
     html=prepareOfficialHtml(html);
