@@ -2,85 +2,62 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>中央経理センター</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    :root{background:#030915;color:#fff}
     *,*::before,*::after{box-sizing:border-box}
-    html,body{width:100%;max-width:100%;min-height:100%;margin:0;overflow-x:hidden;background:#030915}
-    body{overflow-y:auto}
-    main{width:100%;max-width:100%}
-    .hero{position:relative;isolation:isolate;width:100%;max-width:100%;min-height:100vh;min-height:100svh;min-height:100dvh;overflow:clip;background:#07152a}
-    .hero::before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 18% 24%,#234778 0%,transparent 42%),radial-gradient(ellipse at 76% 72%,#1b5372 0%,transparent 48%),linear-gradient(135deg,#071c3b 0%,#0a3155 43%,#091127 100%)}
-    #stage{position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0;display:block;background:transparent;touch-action:pan-y}
-    .hero.webgl-fallback #stage{visibility:hidden}
-    .overlay{position:absolute;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom));text-shadow:0 3px 24px rgba(0,0,0,.82)}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#07152a}
+    #stage{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#07152a}
+    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;text-shadow:0 3px 24px rgba(0,0,0,.82)}
     .overlay-inner{max-width:980px;transform:translateY(-3vh)}
     .yuragi-char{display:inline-block;animation:char-wave 3s ease-in-out infinite;will-change:transform}
     @keyframes char-wave{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(1deg)}}
-    h1{max-width:100%;margin:0 0 24px;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(38px,6.4vw,88px);font-weight:300;letter-spacing:.2em;line-height:1.25}
-    p{max-width:100%;margin:0;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(14px,1.65vw,21px);font-weight:300;line-height:2;letter-spacing:.16em}
-    #ui-toggle{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));z-index:30;min-height:44px;border:1px solid rgba(255,255,255,.58);border-radius:999px;padding:11px 17px;background:rgba(6,13,20,.7);color:#fff;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.08em;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-    #ui-toggle:disabled{opacity:.5;cursor:wait}
-    #status{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(60px,calc(env(safe-area-inset-bottom) + 52px));z-index:20;max-width:calc(100% - 36px);color:#fff;font:12px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
-    #build{position:absolute;right:max(10px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));z-index:20;color:rgba(255,255,255,.45);font:10px/1 system-ui,sans-serif;pointer-events:none}
-    @media(max-width:768px){
-      .overlay{padding-left:20px;padding-right:20px}
-      .overlay-inner{width:100%;transform:translateY(-4vh)}
-      h1{margin-bottom:18px;font-size:clamp(30px,10vw,54px);letter-spacing:.1em}
-      p{font-size:clamp(12px,3.7vw,15px);line-height:1.9;letter-spacing:.08em}
-      #ui-toggle{left:max(12px,env(safe-area-inset-left));padding-inline:16px}
-      #status{bottom:max(62px,calc(env(safe-area-inset-bottom) + 54px));font-size:11px}
-      .yuragi-char{animation-duration:4s}
-      @keyframes char-wave{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-1.5px) rotate(.5deg)}}
-    }
+    h1{margin:0 0 24px;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(38px,6.4vw,88px);font-weight:300;letter-spacing:.2em;line-height:1.25}
+    p{margin:0;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(14px,1.65vw,21px);font-weight:300;line-height:2;letter-spacing:.16em}
+    #ui-toggle{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));z-index:30;min-height:44px;border:1px solid rgba(255,255,255,.58);border-radius:999px;padding:11px 17px;background:rgba(6,13,20,.7);color:#fff;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.08em;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    #ui-toggle:disabled{opacity:.45;cursor:wait}
+    #status{position:fixed;left:18px;bottom:64px;z-index:20;max-width:calc(100% - 36px);color:#fff;font:12px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
+    #build{position:fixed;right:10px;bottom:8px;z-index:20;color:rgba(255,255,255,.45);font:10px/1 system-ui,sans-serif;pointer-events:none}
+    @media(max-width:820px){.overlay{padding:18px}.overlay-inner{width:100%;transform:translateY(-5vh)}h1{font-size:clamp(30px,10vw,54px);letter-spacing:.1em}p{font-size:13px;letter-spacing:.08em}.yuragi-char{animation-duration:4.5s;will-change:auto}}
     @media(prefers-reduced-motion:reduce){.yuragi-char{animation:none}}
   </style>
 </head>
 <body>
-  <main>
-    <section id="hero" class="hero" aria-label="中央経理センターの紹介">
-      <iframe id="stage" title="Three.js GPGPU Water" allow="fullscreen"></iframe>
-      <div class="overlay"><div class="overlay-inner"><h1 id="title">中央経理センター</h1><p id="lead">信頼と実績で、企業の経理と経営を支える。</p></div></div>
-      <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
-      <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-      <div id="build">build 20260730-09</div>
-    </section>
-  </main>
+  <iframe id="stage" title="Three.js GPGPU Water" allow="fullscreen"></iframe>
+  <div class="overlay"><div class="overlay-inner"><h1 id="title">中央経理センター</h1><p id="lead">信頼と実績で、企業の経理と経営を支える。</p></div></div>
+  <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
+  <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
+  <div id="build">build 20260730-10</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
 const SOURCE=`${EX}webgl_gpgpu_water.html`;
 const stage=document.getElementById('stage');
-const hero=document.getElementById('hero');
 const status=document.getElementById('status');
 const toggle=document.getElementById('ui-toggle');
-let sourceHtml='';
+const isMobile=matchMedia('(max-width:820px),(pointer:coarse)').matches;
 let controlsVisible=false;
-let lastMobileMode=isMobileViewport();
-let reloadTimer=0;
-let heroInViewport=true;
-let uiObserver=null;
+let observer=null;
 
-function isMobileViewport(){return window.matchMedia('(max-width: 768px)').matches}
-function reducedMotion(){return window.matchMedia('(prefers-reduced-motion: reduce)').matches}
 function wrapChars(el){el.innerHTML=[...el.textContent].map((c,i)=>c===' '?c:`<span class="yuragi-char" style="animation-delay:${(i%9)*.12}s">${c}</span>`).join('')}
 wrapChars(document.getElementById('title'));
 wrapChars(document.getElementById('lead'));
 
 function applyControlsState(){
   const doc=stage.contentDocument;
-  if(!doc) return false;
+  if(!doc)return false;
   const gui=doc.getElementById('three-gui');
   const info=doc.getElementById('info');
   const stats=doc.getElementById('three-stats');
-  if(info) info.style.setProperty('display','none','important');
-  if(stats) stats.style.setProperty('display','none','important');
-  if(gui) gui.style.setProperty('display',controlsVisible?'':'none','important');
-  doc.documentElement.classList.toggle('ui-hidden',!controlsVisible);
+  if(info)info.style.setProperty('display','none','important');
+  if(stats)stats.style.setProperty('display','none','important');
+  if(gui){
+    if(controlsVisible)gui.style.removeProperty('display');
+    else gui.style.setProperty('display','none','important');
+  }
   return Boolean(gui&&stats);
 }
 
@@ -93,318 +70,58 @@ function setControlsVisible(visible){
 toggle.addEventListener('click',()=>setControlsVisible(!controlsVisible));
 
 function replaceRequired(html,search,replacement,label){
-  if(!html.includes(search)) throw new Error(`${label} の組み込み位置が見つかりません`);
+  if(!html.includes(search))throw new Error(`${label} の組み込み位置が見つかりません`);
   return html.replace(search,replacement);
 }
 
-function notifyFallback(message,error){
-  if(uiObserver){uiObserver.disconnect();uiObserver=null}
-  hero.classList.add('webgl-fallback');
-  toggle.disabled=true;
-  status.textContent=`WebGLを使えないため、静止背景を表示しています。${message?' '+message:''}`;
-  if(error) console.error('[GPGPU Water]',error);
-}
-
-function postToWater(action){
-  if(stage.contentWindow) stage.contentWindow.postMessage({type:'kaku-water-control',action},'*');
-}
-
 function prepareOfficialHtml(html){
-  const bridge=`<script>
-    (function(){
-      const report=function(kind,error){
-        const message=error&&error.message?error.message:String(error||kind);
-        console.error('[GPGPU Water '+kind+']',error||message);
-        window.parent.postMessage({type:'kaku-water-error',message:message},'*');
-      };
-      window.addEventListener('error',function(event){report('runtime error',event.error||event.message)});
-      window.addEventListener('unhandledrejection',function(event){report('initialization error',event.reason)});
-    })();
-  <\/script>`;
-  const iframeCss=`<style>
-    html,body{width:100%;max-width:100%;height:100%;margin:0;overflow:hidden;background:#07152a}
-    #info,#three-stats{display:none!important}
-    html.ui-hidden #three-gui{display:none!important}
-    canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important;max-width:100%;touch-action:pan-y}
-  </style>`;
-  html=html.replace(/<head([^>]*)>/i,`<head$1><base href="${EX}">${iframeCss}${bridge}<script>document.documentElement.classList.add('ui-hidden')<\/script>`);
-  html=replaceRequired(html,'// Texture width for simulation',`const isMobile = window.matchMedia('(max-width: 768px)').matches;
-\t\t\tconst prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-\t\t\tconst COMPUTE_FRAME_INTERVAL = isMobile ? 2 : 1;
-
-\t\t\t// Texture width for simulation`,'device mode');
+  const iframeCss='<style>html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#07152a}#info,#three-stats{display:none!important}canvas{display:block;width:100%!important;height:100%!important}</style>';
+  html=html.replace(/<head([^>]*)>/i,`<head$1><base href="${EX}">${iframeCss}`);
+  html=replaceRequired(html,'// Texture width for simulation',`const isMobile = window.matchMedia('(max-width: 820px), (pointer: coarse)').matches;\n\t\t\t// Texture width for simulation`,'mobile mode');
   html=replaceRequired(html,'const WIDTH = 128;','const WIDTH = isMobile ? 64 : 128;','water resolution');
   html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = isMobile ? 4 : 12;','duck count');
+  html=replaceRequired(html,'new THREE.WebGLRenderer( { antialias: true } )',"new THREE.WebGLRenderer( isMobile ? { antialias: false, powerPreference: 'high-performance' } : { antialias: true } )",'renderer');
+  html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',"renderer.setPixelRatio( isMobile ? Math.min( window.devicePixelRatio, 1 ) : Math.min( window.devicePixelRatio, 1.75 ) );",'pixel ratio');
   html=replaceRequired(html,'stats = new Stats();',"stats = new Stats(); stats.dom.id = 'three-stats'; stats.dom.style.setProperty('display','none','important');",'Stats');
   html=replaceRequired(html,'const gui = new GUI();',"const gui = new GUI(); gui.domElement.id = 'three-gui'; gui.domElement.style.setProperty('display','none','important');",'GUI');
-  html=replaceRequired(html,'new THREE.WebGLRenderer( { antialias: true } )',"new THREE.WebGLRenderer( isMobile ? { antialias: false, powerPreference: 'high-performance' } : { antialias: true } )",'renderer');
-  html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',`renderer.setPixelRatio( isMobile ? Math.min( window.devicePixelRatio, 1.25 ) : Math.min( window.devicePixelRatio, 2 ) );`,'pixel ratio');
-  html=replaceRequired(html,"container.style.touchAction = 'none';\n\t\t\t\tcontainer.addEventListener( 'pointermove', onPointerMove );\n\t\t\t\tcontainer.addEventListener( 'pointerdown', onPointerDown );\n\t\t\t\tcontainer.addEventListener( 'pointerup', onPointerUp );",`container.style.touchAction = 'pan-y';
-\t\t\t\tcontainer.addEventListener( 'pointermove', onPointerMove, { passive: false } );
-\t\t\t\tcontainer.addEventListener( 'pointerdown', onPointerDown, { passive: false } );
-\t\t\t\tcontainer.addEventListener( 'pointerup', onPointerUp );
-\t\t\t\tcontainer.addEventListener( 'pointercancel', onPointerCancel );`,'pointer events');
-  html=replaceRequired(html,"window.addEventListener( 'resize', onWindowResize );",`window.addEventListener( 'resize', onWindowResize );
-\t\t\t\twindow.addEventListener( 'orientationchange', () => setTimeout( onWindowResize, 120 ) );`,'resize events');
-  html=replaceRequired(html,'speed: 5,','speed: 5,','compute speed');
-  html=replaceRequired(html,'renderer.setAnimationLoop( animate );',`setupRenderingGuards();
-\t\t\t\tstartRenderLoop();`,'render loop');
-  html=replaceRequired(html,'if ( frame >= 7 - effectController.speed )','if ( frame >= ( 7 - effectController.speed ) * COMPUTE_FRAME_INTERVAL )','compute interval');
-  html=replaceRequired(html,"const error = gpuCompute.init();\n\t\t\t\tif ( error !== null ) console.error( error );",`const error = gpuCompute.init();
-\t\t\t\tif ( error !== null ) throw new Error( error );
-\t\t\t\tif ( renderer.getContext().getError() !== renderer.getContext().NO_ERROR ) throw new Error( 'GPU計算テクスチャを初期化できませんでした。' );`,'GPU initialization');
-  html=replaceRequired(html,`function onWindowResize() {
-
-\t\t\t\tcamera.aspect = window.innerWidth / window.innerHeight;
-\t\t\t\tcamera.updateProjectionMatrix();
-
-\t\t\t\trenderer.setSize( window.innerWidth, window.innerHeight );
-
-\t\t\t}` ,`function onWindowResize() {
-
-\t\t\t\tcamera.aspect = window.innerWidth / window.innerHeight;
-\t\t\t\tcamera.updateProjectionMatrix();
-\t\t\t\trenderer.setPixelRatio( isMobile ? Math.min( window.devicePixelRatio, 1.25 ) : Math.min( window.devicePixelRatio, 2 ) );
-\t\t\t\trenderer.setSize( window.innerWidth, window.innerHeight );
-\t\t\t\tif ( renderer.getContext().isContextLost() ) throw new Error( 'WebGLコンテキストが失われました。' );
-
-\t\t\t}`,'resize handler');
-  html=replaceRequired(html,`function onPointerDown() {
-
-\t\t\t\tmousedown = true;
-
-\t\t\t}
-
-\t\t\tfunction onPointerUp() {
-
-\t\t\t\tmousedown = false;
-\t\t\t\tcontrols.enabled = true;
-
-\t\t\t}
-
-\t\t\tfunction onPointerMove( event ) {
-
-\t\t\t\tconst dom = renderer.domElement;
-\t\t\t\tmouseCoords.set( ( event.clientX / dom.clientWidth ) * 2 - 1, - ( event.clientY / dom.clientHeight ) * 2 + 1 );
-
-\t\t\t}`,`let pointerStart = null;
-\t\t\tlet pointerIsHorizontal = ! isMobile;
-
-\t\t\tfunction onPointerDown( event ) {
-
-\t\t\t\tpointerStart = { x: event.clientX, y: event.clientY };
-\t\t\t\tpointerIsHorizontal = ! isMobile || event.pointerType !== 'touch';
-\t\t\t\tmousedown = pointerIsHorizontal;
-
-\t\t\t}
-
-\t\t\tfunction endPointerInteraction() {
-
-\t\t\t\tmousedown = false;
-\t\t\t\tpointerStart = null;
-\t\t\t\tpointerIsHorizontal = ! isMobile;
-\t\t\t\tcontrols.enabled = true;
-
-\t\t\t}
-
-\t\t\tfunction onPointerUp() { endPointerInteraction(); }
-\t\t\tfunction onPointerCancel() { endPointerInteraction(); }
-
-\t\t\tfunction onPointerMove( event ) {
-
-\t\t\t\tif ( isMobile && event.pointerType === 'touch' ) {
-
-\t\t\t\t\tif ( ! pointerStart ) return;
-\t\t\t\t\tconst dx = event.clientX - pointerStart.x;
-\t\t\t\t\tconst dy = event.clientY - pointerStart.y;
-\t\t\t\t\tif ( ! pointerIsHorizontal ) {
-
-\t\t\t\t\t\tif ( Math.abs( dx ) < 5 && Math.abs( dy ) < 5 ) return;
-\t\t\t\t\t\tif ( Math.abs( dx ) <= Math.abs( dy ) ) return;
-\t\t\t\t\t\tpointerIsHorizontal = true;
-\t\t\t\t\t\tmousedown = true;
-
-\t\t\t\t\t}
-\t\t\t\t\tevent.preventDefault();
-
-\t\t\t\t}
-
-\t\t\t\tconst dom = renderer.domElement;
-\t\t\t\tmouseCoords.set( ( event.clientX / dom.clientWidth ) * 2 - 1, - ( event.clientY / dom.clientHeight ) * 2 + 1 );
-
-\t\t\t}`,'touch gesture handler');
-  html=replaceRequired(html,`function animate() {
-
-\t\t\t\trender();
-\t\t\t\tstats.update();
-
-\t\t\t}` ,`let renderFrameId = 0;
-\t\t\tlet renderLoopRunning = false;
-\t\t\tlet heroIsVisible = true;
-
-\t\t\tfunction reportFatalError( error ) {
-
-\t\t\t\tconsole.error( '[GPGPU Water]', error );
-\t\t\t\tstopRenderLoop();
-\t\t\t\twindow.parent.postMessage( { type: 'kaku-water-error', message: error && error.message ? error.message : String( error ) }, '*' );
-
-\t\t\t}
-
-\t\t\tfunction canRender() {
-
-\t\t\t\treturn heroIsVisible && document.visibilityState === 'visible' && ! prefersReducedMotion;
-
-\t\t\t}
-
-\t\t\tfunction renderFrame() {
-
-\t\t\t\trenderFrameId = 0;
-\t\t\t\tif ( ! canRender() ) { renderLoopRunning = false; return; }
-\t\t\t\ttry {
-
-\t\t\t\t\tanimate();
-
-\t\t\t\t} catch ( error ) {
-
-\t\t\t\t\treportFatalError( error );
-\t\t\t\t\treturn;
-
-\t\t\t\t}
-\t\t\t\trenderFrameId = requestAnimationFrame( renderFrame );
-
-\t\t\t}
-
-\t\t\tfunction startRenderLoop() {
-
-\t\t\t\tif ( renderLoopRunning ) return;
-\t\t\t\tif ( prefersReducedMotion ) { render(); return; }
-\t\t\t\tif ( ! canRender() ) return;
-\t\t\t\trenderLoopRunning = true;
-\t\t\t\trenderFrameId = requestAnimationFrame( renderFrame );
-
-\t\t\t}
-
-\t\t\tfunction stopRenderLoop() {
-
-\t\t\t\tif ( renderFrameId ) cancelAnimationFrame( renderFrameId );
-\t\t\t\trenderFrameId = 0;
-\t\t\t\trenderLoopRunning = false;
-
-\t\t\t}
-
-\t\t\tfunction syncRenderLoop() {
-
-\t\t\t\tif ( canRender() ) startRenderLoop();
-\t\t\t\telse stopRenderLoop();
-
-\t\t\t}
-
-\t\t\tfunction setupRenderingGuards() {
-
-\t\t\t\trenderer.domElement.addEventListener( 'webglcontextlost', event => {
-
-\t\t\t\t\tevent.preventDefault();
-\t\t\t\t\treportFatalError( new Error( 'WebGLコンテキストが失われました。' ) );
-
-\t\t\t\t}, false );
-\t\t\t\trenderer.debug.onShaderError = ( gl, program, vertexShader, fragmentShader ) => {
-
-\t\t\t\t\tconsole.error( '[GPGPU Water shader error]', { program, vertexShader, fragmentShader } );
-\t\t\t\t\treportFatalError( new Error( 'WebGLシェーダーのコンパイルに失敗しました。' ) );
-
-\t\t\t\t};
-\t\t\t\tdocument.addEventListener( 'visibilitychange', syncRenderLoop );
-\t\t\t\twindow.addEventListener( 'message', event => {
-
-\t\t\t\t\tif ( event.data?.type !== 'kaku-water-control' ) return;
-\t\t\t\t\tif ( event.data.action === 'pause' ) { heroIsVisible = false; stopRenderLoop(); }
-\t\t\t\t\tif ( event.data.action === 'resume' ) { heroIsVisible = true; syncRenderLoop(); }
-\t\t\t\t\tif ( event.data.action === 'resize' ) onWindowResize();
-
-\t\t\t\t} );
-
-\t\t\t}
-
-\t\t\tfunction animate() {
-
-\t\t\t\trender();
-\t\t\t\tstats.update();
-
-\t\t\t}`,'render loop');
   return html;
 }
 
-function loadWater(){
-  if(!sourceHtml) return;
-  hero.classList.remove('webgl-fallback');
-  toggle.disabled=true;
-  status.textContent='公式Three.jsを読み込み中…';
-  try{
-    stage.srcdoc=prepareOfficialHtml(sourceHtml);
-  }catch(error){
-    notifyFallback('初期化設定を適用できませんでした。',error);
-  }
-}
-
-function setupFrameLifecycle(){
-  const syncVisibility=()=>postToWater(heroInViewport&&document.visibilityState==='visible'?'resume':'pause');
-  const observer=new IntersectionObserver(entries=>{
-    heroInViewport=entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>0);
-    syncVisibility();
-  },{threshold:0.01});
-  observer.observe(hero);
-  document.addEventListener('visibilitychange',syncVisibility);
-  const resizeFrame=()=>{
-    const nextMode=isMobileViewport();
-    if(nextMode!==lastMobileMode&&sourceHtml){
-      lastMobileMode=nextMode;
-      clearTimeout(reloadTimer);
-      reloadTimer=setTimeout(loadWater,140);
-      return;
-    }
-    postToWater('resize');
-  };
-  window.addEventListener('resize',resizeFrame);
-  window.addEventListener('orientationchange',()=>setTimeout(resizeFrame,150));
-}
-
-window.addEventListener('message',event=>{
-  if(event.data?.type==='kaku-water-error') notifyFallback(event.data.message);
-});
-stage.addEventListener('error',()=>notifyFallback('埋め込み画面を読み込めませんでした。'));
-stage.addEventListener('load',()=>{
-  const doc=stage.contentDocument;
-  if(!doc){notifyFallback('埋め込み画面にアクセスできませんでした。');return}
-  postToWater(heroInViewport&&document.visibilityState==='visible'?'resume':'pause');
-  if(uiObserver){uiObserver.disconnect();uiObserver=null}
-  uiObserver=new MutationObserver(()=>applyControlsState());
-  uiObserver.observe(doc.documentElement,{childList:true,subtree:true});
-  setControlsVisible(false);
-  let count=0;
-  const check=setInterval(()=>{
-    count++;
-    const canvas=doc.querySelector('canvas');
-    const gui=doc.getElementById('three-gui');
-    const stats=doc.getElementById('three-stats');
-    if(canvas&&gui&&stats){
-      canvas.style.touchAction='pan-y';
-      toggle.disabled=false;
-      status.textContent=reducedMotion()?'動きを減らす設定のため、静止表示にしています。':'';
-      if(uiObserver){uiObserver.disconnect();uiObserver=null}
-      clearInterval(check);
-    }else if(count>=30){
-      clearInterval(check);
-      notifyFallback('WebGLまたは操作パネルを生成できませんでした。');
-    }
-  },500);
-});
-setupFrameLifecycle();
-
-const timeout=setTimeout(()=>{if(!sourceHtml)notifyFallback('通信状態を確認してください。')},15000);
-fetch(`${SOURCE}?v=202607300000`,{cache:'no-store'})
+const timeout=setTimeout(()=>{status.textContent='読み込みに時間がかかっています。通信状態を確認してください。'},15000);
+fetch(`${SOURCE}?v=202607300030`,{cache:'no-store'})
   .then(r=>{if(!r.ok)throw new Error(`公式HTML HTTP ${r.status}`);return r.text()})
-  .then(html=>{clearTimeout(timeout);sourceHtml=html;loadWater()})
-  .catch(error=>{clearTimeout(timeout);notifyFallback('公式Three.jsを読み込めませんでした。',error)});
+  .then(html=>{
+    stage.addEventListener('load',()=>{
+      clearTimeout(timeout);
+      const doc=stage.contentDocument;
+      if(!doc){status.textContent='内部画面へアクセスできませんでした。';return}
+      if(observer)observer.disconnect();
+      observer=new MutationObserver(()=>applyControlsState());
+      observer.observe(doc.documentElement,{childList:true,subtree:true});
+      setControlsVisible(false);
+      let checks=0;
+      const check=setInterval(()=>{
+        checks++;
+        const canvas=doc.querySelector('canvas');
+        const ready=applyControlsState();
+        if(canvas&&ready){
+          status.textContent='';
+          toggle.disabled=false;
+          if(observer){observer.disconnect();observer=null}
+          clearInterval(check);
+        }else if(checks>=40){
+          status.textContent='WebGLの初期化に失敗しました。ページを再読み込みしてください。';
+          clearInterval(check);
+        }
+      },500);
+    },{once:true});
+    stage.srcdoc=prepareOfficialHtml(html);
+  })
+  .catch(error=>{
+    clearTimeout(timeout);
+    status.textContent=`読み込みエラー: ${error.message}`;
+    console.error(error);
+  });
 </script>
 </body>
 </html>
