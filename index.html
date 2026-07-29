@@ -6,8 +6,8 @@
   <title>中央経理センター</title>
   <style>
     html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}
-    #stage{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
-    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;text-shadow:0 2px 18px rgba(0,0,0,.75)}
+    #stage{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
+    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;text-shadow:0 2px 18px rgba(0,0,0,.8)}
     .overlay-inner{max-width:920px}
     .yuragi-char{display:inline-block;animation:char-wave 3s ease-in-out infinite}
     @keyframes char-wave{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(1deg)}}
@@ -17,7 +17,7 @@
   </style>
 </head>
 <body>
-  <iframe id="stage" title="Three.js GPGPU Water"></iframe>
+  <iframe id="stage" title="Three.js GPGPU Water" allow="fullscreen"></iframe>
   <div class="overlay">
     <div class="overlay-inner">
       <h1 id="title">中央経理センター</h1>
@@ -25,34 +25,37 @@
     </div>
   </div>
   <div id="status">公式Three.jsを読み込み中…</div>
+
   <script>
     const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
-    const ROOT=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}`;
-    const EX=`${ROOT}/examples`;
-    const source=`${EX}/webgl_gpgpu_water.html`;
+    const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
+    const SOURCE=`${EX}webgl_gpgpu_water.html`;
     const stage=document.getElementById('stage');
     const status=document.getElementById('status');
 
     function wrapChars(el){
-      el.innerHTML=[...el.textContent].map((c,i)=>c===' '?c:`<span class="yuragi-char" style="animation-delay:${(i%9)*.12}s">${c}</span>`).join('');
+      el.innerHTML=[...el.textContent].map((c,i)=>
+        c===' ' ? c : `<span class="yuragi-char" style="animation-delay:${(i%9)*.12}s">${c}</span>`
+      ).join('');
     }
+
     wrapChars(document.getElementById('title'));
     wrapChars(document.getElementById('lead'));
 
-    fetch(source)
-      .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text()})
-      .then(html=>{
-        html=html
-          .replace('href="main.css"',`href="${EX}/main.css"`)
-          .replace('"three": "../build/three.module.js"',`"three": "${ROOT}/build/three.module.js"`)
-          .replace('"three/addons/": "./jsm/"',`"three/addons/": "${EX}/jsm/"`)
-          .replace("setPath( './textures/equirectangular/' )",`setPath( '${EX}/textures/equirectangular/' )`)
-          .replace("setPath( 'models/gltf/' )",`setPath( '${EX}/models/gltf/' )`);
-        stage.srcdoc=html;
-        status.textContent='';
+    fetch(SOURCE,{cache:'no-store'})
+      .then(response=>{
+        if(!response.ok) throw new Error(`公式HTML HTTP ${response.status}`);
+        return response.text();
       })
-      .catch(err=>{
-        status.textContent='読み込みエラー: '+err.message;
+      .then(html=>{
+        const base=`<base href="${EX}">`;
+        html=html.replace(/<head([^>]*)>/i,`<head$1>${base}`);
+        stage.addEventListener('load',()=>{status.textContent='';},{once:true});
+        stage.srcdoc=html;
+      })
+      .catch(error=>{
+        status.textContent=`読み込みエラー: ${error.message}`;
+        console.error(error);
       });
   </script>
 </body>
