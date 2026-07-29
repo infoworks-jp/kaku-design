@@ -39,7 +39,7 @@
     #status{position:fixed;left:18px;bottom:64px;z-index:20;max-width:calc(100% - 36px);color:#fff;font:12px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
     #build{position:fixed;right:10px;bottom:8px;z-index:20;color:rgba(255,255,255,.45);font:10px/1 system-ui,sans-serif;pointer-events:none}
     @media(max-width:900px){.nav a:not(.nav-cta){display:none}.site-header{padding:22px}.worries{grid-template-columns:1fr 1fr}.service-grid{grid-template-columns:1fr}.proof-grid{grid-template-columns:1fr}.service-card{min-height:0}.section{padding-left:22px;padding-right:22px}}
-    @media(max-width:520px){#stage{pointer-events:none}.brand{font-size:12px}.nav .nav-cta{padding:10px 13px;font-size:10px}.hero{padding-inline:18px}.hero-inner{width:100%;transform:translateY(-3vh)}h1{font-size:clamp(30px,10vw,54px);letter-spacing:.1em}.hero-lead{font-size:13px;letter-spacing:.08em}.hero-note{font-size:10px}.worries{grid-template-columns:1fr}.worry{min-height:0}.contact-actions{display:grid}.button{width:100%}.yuragi-char{animation-duration:4.5s;will-change:auto}#ui-toggle,#build{display:none}}
+    @media(max-width:520px){.brand{font-size:12px}.nav .nav-cta{padding:10px 13px;font-size:10px}.hero{padding-inline:18px}.hero-inner{width:100%;transform:translateY(-3vh)}h1{font-size:clamp(30px,10vw,54px);letter-spacing:.1em}.hero-lead{font-size:13px;letter-spacing:.08em}.hero-note{font-size:10px}.worries{grid-template-columns:1fr}.worry{min-height:0}.contact-actions{display:grid}.button{width:100%}.yuragi-char{animation-duration:4.5s;will-change:auto}#ui-toggle,#build{display:none}}
     @media(prefers-reduced-motion:reduce){.yuragi-char{animation:none}}
   </style>
 </head>
@@ -58,7 +58,7 @@
   </div>
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260730-12</div>
+  <div id="build">build 20260730-13</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
@@ -123,6 +123,14 @@ fetch(`${SOURCE}?v=202607300030`,{cache:'no-store'})
       const doc=stage.contentDocument;
       if(!doc){status.textContent='内部画面へアクセスできませんでした。';return}
       doc.addEventListener('wheel',event=>window.scrollBy({top:event.deltaY,left:0}),{passive:true});
+      let lastTouchY=null;
+      doc.addEventListener('touchstart',event=>{lastTouchY=event.touches[0]?.clientY??null},{passive:true});
+      doc.addEventListener('touchmove',event=>{
+        const y=event.touches[0]?.clientY;
+        if(lastTouchY!==null&&y!==undefined)window.scrollBy({top:lastTouchY-y,left:0});
+        lastTouchY=y??null;
+      },{passive:true});
+      doc.addEventListener('touchend',()=>{lastTouchY=null},{passive:true});
       if(observer)observer.disconnect();
       observer=new MutationObserver(()=>applyControlsState());
       observer.observe(doc.documentElement,{childList:true,subtree:true});
