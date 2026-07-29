@@ -22,6 +22,7 @@
     #ui-toggle{position:fixed;left:18px;bottom:18px;z-index:30;border:1px solid rgba(255,255,255,.58);border-radius:999px;padding:11px 17px;background:rgba(6,13,20,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.1em;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.28)}
     #ui-toggle:hover{background:rgba(6,13,20,.82)}
     #ui-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
+    #ui-toggle:disabled{opacity:.5;cursor:wait}
     #status{position:fixed;left:18px;bottom:60px;z-index:20;color:#fff;font:12px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
     #build{position:fixed;right:10px;bottom:8px;z-index:20;color:rgba(255,255,255,.45);font:10px/1 system-ui,sans-serif;pointer-events:none}
     @media(max-width:640px){h1{letter-spacing:.12em}.overlay{padding:18px}#ui-toggle{left:12px;bottom:12px}}
@@ -40,7 +41,7 @@
 
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260729-02</div>
+  <div id="build">build 20260729-03</div>
 
   <script>
     const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
@@ -51,6 +52,7 @@
     const toggle=document.getElementById('ui-toggle');
     let controlsVisible=false;
     let loadFinished=false;
+    let uiObserver=null;
 
     function wrapChars(el){
       el.innerHTML=[...el.textContent].map((c,i)=>
@@ -58,24 +60,34 @@
       ).join('');
     }
 
+    function isInternalUi(node){
+      if(!(node instanceof Element)) return false;
+      if(node.matches('#info,.lil-gui')) return true;
+      const style=node.getAttribute('style')||'';
+      return style.includes('z-index: 10000')||style.includes('z-index:10000');
+    }
+
     function findInternalUi(doc){
-      const nodes=new Set();
-      doc.querySelectorAll('#info,.lil-gui').forEach(node=>nodes.add(node));
-      doc.querySelectorAll('div').forEach(node=>{
-        const style=node.getAttribute('style')||'';
-        if(style.includes('z-index: 10000')||style.includes('z-index:10000')) nodes.add(node);
-      });
-      return [...nodes];
+      return [...doc.querySelectorAll('#info,.lil-gui,div')].filter(isInternalUi);
+    }
+
+    function applyControlsState(){
+      const doc=stage.contentDocument;
+      if(!doc) return;
+      findInternalUi(doc).forEach(node=>{node.style.display=controlsVisible?'':'none';});
     }
 
     function setControlsVisible(visible){
       controlsVisible=visible;
-      const doc=stage.contentDocument;
-      if(doc){
-        findInternalUi(doc).forEach(node=>{node.style.display=visible?'':'none';});
-      }
+      applyControlsState();
       toggle.textContent=visible?'調整パネルを隠す':'調整パネルを表示';
       toggle.setAttribute('aria-pressed',String(visible));
+    }
+
+    function observeInternalUi(doc){
+      if(uiObserver) uiObserver.disconnect();
+      uiObserver=new MutationObserver(()=>applyControlsState());
+      uiObserver.observe(doc.documentElement,{childList:true,subtree:true});
     }
 
     wrapChars(document.getElementById('title'));
@@ -88,7 +100,7 @@
       }
     },15000);
 
-    fetch(`${SOURCE}?v=202607292200`,{cache:'no-store'})
+    fetch(`${SOURCE}?v=202607292215`,{cache:'no-store'})
       .then(response=>{
         if(!response.ok) throw new Error(`公式HTML HTTP ${response.status}`);
         return response.text();
@@ -100,14 +112,26 @@
           loadFinished=true;
           clearTimeout(timeoutId);
           const doc=stage.contentDocument;
-          const canvas=doc&&doc.querySelector('canvas');
-          if(!canvas){
-            status.textContent='WebGL画面を生成できませんでした。';
+          if(!doc){
+            status.textContent='内部画面へアクセスできませんでした。';
             return;
           }
-          status.textContent='';
+          observeInternalUi(doc);
+          setControlsVisible(false);
           toggle.disabled=false;
-          requestAnimationFrame(()=>setControlsVisible(false));
+
+          let checks=0;
+          const canvasCheck=setInterval(()=>{
+            checks++;
+            const canvas=doc.querySelector('canvas');
+            if(canvas){
+              status.textContent='';
+              clearInterval(canvasCheck);
+            }else if(checks>=30){
+              status.textContent='WebGL画面を生成できませんでした。';
+              clearInterval(canvasCheck);
+            }
+          },500);
         },{once:true});
         stage.srcdoc=html;
       })
