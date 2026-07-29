@@ -29,7 +29,7 @@
   <div class="overlay"><div class="overlay-inner"><h1 id="title">中央経理センター</h1><p id="lead">信頼と実績で、企業の経理と経営を支える。</p></div></div>
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260729-07</div>
+  <div id="build">build 20260729-08</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
@@ -37,23 +37,24 @@ const SOURCE=`${EX}webgl_gpgpu_water.html`;
 const stage=document.getElementById('stage');
 const status=document.getElementById('status');
 const toggle=document.getElementById('ui-toggle');
-const isMobile=matchMedia('(max-width:820px),(pointer:coarse)').matches;
+const isMobile=matchMedia('(max-width:820px)').matches;
 let controlsVisible=false;
+let observer=null;
 
 function wrapChars(el){el.innerHTML=[...el.textContent].map((c,i)=>c===' '?c:`<span class="yuragi-char" style="animation-delay:${(i%9)*.12}s">${c}</span>`).join('')}
 wrapChars(document.getElementById('title'));
 wrapChars(document.getElementById('lead'));
 
-function getControlNodes(doc){
-  return [doc.getElementById('info'),doc.getElementById('three-stats'),doc.getElementById('three-gui')].filter(Boolean);
-}
-
 function applyControlsState(){
   const doc=stage.contentDocument;
-  if(!doc) return;
-  const display=controlsVisible?'':'none';
-  getControlNodes(doc).forEach(node=>node.style.setProperty('display',display,'important'));
-  doc.documentElement.classList.toggle('ui-hidden',!controlsVisible);
+  if(!doc) return false;
+  const gui=doc.getElementById('three-gui');
+  const info=doc.getElementById('info');
+  const stats=doc.getElementById('three-stats');
+  if(info) info.style.setProperty('display','none','important');
+  if(stats) stats.style.setProperty('display','none','important');
+  if(gui) gui.style.setProperty('display',controlsVisible?'':'none','important');
+  return Boolean(gui&&stats);
 }
 
 function setControlsVisible(visible){
@@ -70,13 +71,13 @@ function replaceRequired(html,search,replacement,label){
 }
 
 function prepareOfficialHtml(html){
-  const iframeCss='<style>html.ui-hidden #info,html.ui-hidden #three-stats,html.ui-hidden #three-gui{display:none!important}</style>';
+  const iframeCss='<style>#info,#three-stats{display:none!important}html.ui-hidden #three-gui{display:none!important}</style>';
   html=html.replace(/<head([^>]*)>/i,`<head$1><base href="${EX}">${iframeCss}<script>document.documentElement.classList.add('ui-hidden')<\/script>`);
   html=replaceRequired(html,'stats = new Stats();',"stats = new Stats(); stats.dom.id = 'three-stats'; stats.dom.style.setProperty('display','none','important');",'Stats');
   html=replaceRequired(html,'const gui = new GUI();',"const gui = new GUI(); gui.domElement.id = 'three-gui'; gui.domElement.style.setProperty('display','none','important');",'GUI');
   html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',`renderer.setPixelRatio( Math.min( window.devicePixelRatio, ${isMobile?'1':'1.75'} ) );`,'pixelRatio');
   if(isMobile){
-    html=replaceRequired(html,'const WIDTH = 128;','const WIDTH = 48;','水面解像度');
+    html=replaceRequired(html,'const WIDTH = 128;','const WIDTH = 64;','水面解像度');
     html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = 3;','アヒル数');
     html=replaceRequired(html,'new THREE.WebGLRenderer( { antialias: true } )',"new THREE.WebGLRenderer( { antialias: false, powerPreference: 'high-performance' } )",'Renderer');
   }
@@ -84,7 +85,7 @@ function prepareOfficialHtml(html){
 }
 
 const timeout=setTimeout(()=>status.textContent='読み込みに時間がかかっています。通信状態を確認してください。',15000);
-fetch(`${SOURCE}?v=202607292345`,{cache:'no-store'})
+fetch(`${SOURCE}?v=202607292359`,{cache:'no-store'})
   .then(r=>{if(!r.ok)throw new Error(`公式HTML HTTP ${r.status}`);return r.text()})
   .then(html=>{
     html=prepareOfficialHtml(html);
@@ -93,16 +94,27 @@ fetch(`${SOURCE}?v=202607292345`,{cache:'no-store'})
       const doc=stage.contentDocument;
       if(!doc){status.textContent='内部画面へアクセスできませんでした。';return}
       setControlsVisible(false);
-      toggle.disabled=false;
-      const observer=new MutationObserver(()=>applyControlsState());
+      let checks=0;
+      observer=new MutationObserver(()=>{
+        const ready=applyControlsState();
+        if(ready&&observer){observer.disconnect();observer=null;}
+      });
       observer.observe(doc.documentElement,{childList:true,subtree:true});
-      let count=0;
       const check=setInterval(()=>{
-        count++;
+        checks++;
         const canvas=doc.querySelector('canvas');
-        applyControlsState();
-        if(canvas){canvas.style.touchAction='none';status.textContent='';clearInterval(check)}
-        else if(count>=30){status.textContent='WebGL画面を生成できませんでした。';clearInterval(check)}
+        const ready=applyControlsState();
+        if(canvas&&ready){
+          canvas.style.touchAction='none';
+          status.textContent='';
+          toggle.disabled=false;
+          if(observer){observer.disconnect();observer=null;}
+          clearInterval(check);
+        }else if(checks>=40){
+          status.textContent='WebGLまたは調整パネルを生成できませんでした。';
+          if(observer){observer.disconnect();observer=null;}
+          clearInterval(check);
+        }
       },500);
     },{once:true});
     stage.srcdoc=html;
