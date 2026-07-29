@@ -21,8 +21,11 @@
     p{margin:0;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(14px,1.65vw,21px);font-weight:300;line-height:2;letter-spacing:.16em}
     #ui-toggle{position:fixed;left:18px;bottom:18px;z-index:30;border:1px solid rgba(255,255,255,.58);border-radius:999px;padding:11px 17px;background:rgba(6,13,20,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.1em;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.28)}
     #ui-toggle:hover{background:rgba(6,13,20,.82)}
+    #ui-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
     #status{position:fixed;left:18px;bottom:60px;z-index:20;color:#fff;font:12px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
+    #build{position:fixed;right:10px;bottom:8px;z-index:20;color:rgba(255,255,255,.45);font:10px/1 system-ui,sans-serif;pointer-events:none}
     @media(max-width:640px){h1{letter-spacing:.12em}.overlay{padding:18px}#ui-toggle{left:12px;bottom:12px}}
+    @media(prefers-reduced-motion:reduce){.yuragi-char{animation:none}}
   </style>
 </head>
 <body>
@@ -35,8 +38,9 @@
     </div>
   </div>
 
-  <button id="ui-toggle" type="button" aria-pressed="true">調整パネルを表示</button>
-  <div id="status">公式Three.jsを読み込み中…</div>
+  <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
+  <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
+  <div id="build">build 20260729-02</div>
 
   <script>
     const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
@@ -46,6 +50,7 @@
     const status=document.getElementById('status');
     const toggle=document.getElementById('ui-toggle');
     let controlsVisible=false;
+    let loadFinished=false;
 
     function wrapChars(el){
       el.innerHTML=[...el.textContent].map((c,i)=>
@@ -53,38 +58,62 @@
       ).join('');
     }
 
+    function findInternalUi(doc){
+      const nodes=new Set();
+      doc.querySelectorAll('#info,.lil-gui').forEach(node=>nodes.add(node));
+      doc.querySelectorAll('div').forEach(node=>{
+        const style=node.getAttribute('style')||'';
+        if(style.includes('z-index: 10000')||style.includes('z-index:10000')) nodes.add(node);
+      });
+      return [...nodes];
+    }
+
     function setControlsVisible(visible){
       controlsVisible=visible;
       const doc=stage.contentDocument;
-      if(doc) doc.documentElement.classList.toggle('presentation-mode',!visible);
+      if(doc){
+        findInternalUi(doc).forEach(node=>{node.style.display=visible?'':'none';});
+      }
       toggle.textContent=visible?'調整パネルを隠す':'調整パネルを表示';
-      toggle.setAttribute('aria-pressed',String(!visible));
+      toggle.setAttribute('aria-pressed',String(visible));
     }
 
     wrapChars(document.getElementById('title'));
     wrapChars(document.getElementById('lead'));
     toggle.addEventListener('click',()=>setControlsVisible(!controlsVisible));
 
-    fetch(`${SOURCE}?v=202607292147`,{cache:'no-store'})
+    const timeoutId=setTimeout(()=>{
+      if(!loadFinished){
+        status.textContent='読み込みに時間がかかっています。通信状態を確認してください。';
+      }
+    },15000);
+
+    fetch(`${SOURCE}?v=202607292200`,{cache:'no-store'})
       .then(response=>{
         if(!response.ok) throw new Error(`公式HTML HTTP ${response.status}`);
         return response.text();
       })
       .then(html=>{
         const base=`<base href="${EX}">`;
-        const injectedStyle=`<style>
-          html.presentation-mode #info,
-          html.presentation-mode .lil-gui,
-          html.presentation-mode body > div[style*="position: fixed"][style*="top: 0px"]{display:none!important}
-        </style>`;
-        html=html.replace(/<head([^>]*)>/i,`<head$1>${base}${injectedStyle}`);
+        html=html.replace(/<head([^>]*)>/i,`<head$1>${base}`);
         stage.addEventListener('load',()=>{
+          loadFinished=true;
+          clearTimeout(timeoutId);
+          const doc=stage.contentDocument;
+          const canvas=doc&&doc.querySelector('canvas');
+          if(!canvas){
+            status.textContent='WebGL画面を生成できませんでした。';
+            return;
+          }
           status.textContent='';
-          setControlsVisible(false);
+          toggle.disabled=false;
+          requestAnimationFrame(()=>setControlsVisible(false));
         },{once:true});
         stage.srcdoc=html;
       })
       .catch(error=>{
+        loadFinished=true;
+        clearTimeout(timeoutId);
         status.textContent=`読み込みエラー: ${error.message}`;
         console.error(error);
       });
