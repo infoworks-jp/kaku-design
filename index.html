@@ -58,7 +58,7 @@
   </div>
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260730-14</div>
+  <div id="build">build 20260730-15</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
@@ -72,27 +72,40 @@ let observer=null;
 
 function wrapChars(el){el.innerHTML=[...el.textContent].map((c,i)=>c===' '?c:`<span class="yuragi-char" style="animation-delay:${(i%9)*.12}s">${c}</span>`).join('')}
 wrapChars(document.getElementById('title'));
-function relayMobilePointer(event){
+function dispatchWaterPointer(type,data){
   if(!isMobile)return;
   const doc=stage.contentDocument;
   const target=doc?.getElementById('water-container');
-  const PointerEventClass=stage.contentWindow?.PointerEvent;
-  if(!target||!PointerEventClass)return;
-  target.dispatchEvent(new PointerEventClass(event.type,{
-    bubbles:true,
-    clientX:event.clientX,
-    clientY:event.clientY,
-    pointerId:event.pointerId,
-    pointerType:event.pointerType||'touch',
-    isPrimary:event.isPrimary,
-    buttons:event.buttons
-  }));
+  const CustomEventClass=stage.contentWindow?.CustomEvent;
+  if(!target||!CustomEventClass)return;
+  target.dispatchEvent(new CustomEventClass(`water${type}`,{detail:{
+    clientX:data.clientX,
+    clientY:data.clientY,
+    pointerId:data.pointerId,
+    pressure:type==='pointerup'?0:data.pressure
+  }}));
+}
+function relayMobileTouches(event){
+  const types={touchstart:'pointerdown',touchmove:'pointermove',touchend:'pointerup',touchcancel:'pointerup'};
+  const type=types[event.type];
+  const list=event.type==='touchmove'?event.touches:event.changedTouches;
+  for(const touch of list){
+    dispatchWaterPointer(type,{
+      clientX:touch.clientX,
+      clientY:touch.clientY,
+      pointerId:touch.identifier+1000,
+      isPrimary:touch.identifier===0,
+      pressure:Number.isFinite(touch.force)&&touch.force>0?touch.force:0.5,
+      width:(touch.radiusX||5)*2,
+      height:(touch.radiusY||5)*2
+    });
+  }
 }
 const hero=document.querySelector('.hero');
-hero.addEventListener('pointerdown',relayMobilePointer,{passive:true});
-hero.addEventListener('pointermove',relayMobilePointer,{passive:true});
-hero.addEventListener('pointerup',relayMobilePointer,{passive:true});
-hero.addEventListener('pointercancel',relayMobilePointer,{passive:true});
+hero.addEventListener('touchstart',relayMobileTouches,{passive:true});
+hero.addEventListener('touchmove',relayMobileTouches,{passive:true});
+hero.addEventListener('touchend',relayMobileTouches,{passive:true});
+hero.addEventListener('touchcancel',relayMobileTouches,{passive:true});
 
 function applyControlsState(){
   const doc=stage.contentDocument;
@@ -128,11 +141,79 @@ function prepareOfficialHtml(html){
   html=replaceRequired(html,'// Texture width for simulation',`const isMobile = window.matchMedia('(max-width: 820px), (pointer: coarse)').matches;\n\t\t\t// Texture width for simulation`,'mobile mode');
   html=replaceRequired(html,"container = document.createElement( 'div' );","container = document.createElement( 'div' ); container.id = 'water-container';",'water interaction target');
   html=replaceRequired(html,'const WIDTH = 128;','const WIDTH = isMobile ? 64 : 128;','water resolution');
+  html=replaceRequired(html,'let mousedown = false;',`let mousedown = false;
+			const activePointers = new Map();
+			let pointerCursor = 0;`,'multi pointer state');
   html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = isMobile ? 4 : 12;','duck count');
   html=replaceRequired(html,'new THREE.WebGLRenderer( { antialias: true } )',"new THREE.WebGLRenderer( isMobile ? { antialias: false, powerPreference: 'high-performance' } : { antialias: true } )",'renderer');
   html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',"renderer.setPixelRatio( isMobile ? Math.min( window.devicePixelRatio, 1 ) : Math.min( window.devicePixelRatio, 1.75 ) );",'pixel ratio');
   html=replaceRequired(html,'stats = new Stats();',"stats = new Stats(); stats.dom.id = 'three-stats'; stats.dom.style.setProperty('display','none','important');",'Stats');
   html=replaceRequired(html,'const gui = new GUI();',"const gui = new GUI(); gui.domElement.id = 'three-gui'; gui.domElement.style.setProperty('display','none','important');",'GUI');
+  html=replaceRequired(html,"container.addEventListener( 'pointerup', onPointerUp );",`container.addEventListener( 'pointerup', onPointerUp );
+				container.addEventListener( 'waterpointerdown', event => onPointerDown( event.detail ) );
+				container.addEventListener( 'waterpointermove', event => onPointerMove( event.detail ) );
+				container.addEventListener( 'waterpointerup', event => onPointerUp( event.detail ) );`,'isolated mobile water events');
+  html=replaceRequired(html,`function onPointerDown() {
+
+				mousedown = true;
+
+			}`,`function updatePointer( event ) {
+
+				const dom = renderer.domElement;
+				const pressure = Number.isFinite( event.pressure ) && event.pressure > 0 ? event.pressure : 0.5;
+				activePointers.set( event.pointerId, {
+					coords: new THREE.Vector2( ( event.clientX / dom.clientWidth ) * 2 - 1, - ( event.clientY / dom.clientHeight ) * 2 + 1 ),
+					pressure
+				} );
+				container.dataset.activePointers = String( activePointers.size );
+				container.dataset.lastPressure = pressure.toFixed( 3 );
+
+			}
+
+			function onPointerDown( event ) {
+
+				mousedown = true;
+				updatePointer( event );
+
+			}`,'pressure pointer down');
+  html=replaceRequired(html,`function onPointerUp() {
+
+				mousedown = false;
+				controls.enabled = true;
+
+			}`,`function onPointerUp( event ) {
+
+				activePointers.delete( event.pointerId );
+				mousedown = activePointers.size > 0;
+				container.dataset.activePointers = String( activePointers.size );
+				if ( ! mousedown ) controls.enabled = true;
+
+			}`,'multi pointer up');
+  html=replaceRequired(html,`function onPointerMove( event ) {
+
+				const dom = renderer.domElement;
+				mouseCoords.set( ( event.clientX / dom.clientWidth ) * 2 - 1, - ( event.clientY / dom.clientHeight ) * 2 + 1 );
+
+			}`,`function onPointerMove( event ) {
+
+				if ( activePointers.has( event.pointerId ) ) updatePointer( event );
+
+			}`,'multi pointer move');
+  html=replaceRequired(html,`function raycast() {
+
+				// Set uniforms: mouse interaction`, `function raycast() {
+
+				if ( activePointers.size > 0 ) {
+
+					const pointers = Array.from( activePointers.values() );
+					const pointer = pointers[ pointerCursor ++ % pointers.length ];
+					mouseCoords.copy( pointer.coords );
+					heightmapVariable.material.uniforms[ 'deep' ].value = effectController.mouseDeep * ( 0.35 + pointer.pressure * 1.65 );
+					container.dataset.appliedDepth = heightmapVariable.material.uniforms[ 'deep' ].value.toFixed( 5 );
+
+				}
+
+				// Set uniforms: mouse interaction`,'pressure and multi touch raycast');
   return html;
 }
 
