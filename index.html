@@ -5,26 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>中央経理センター</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body, html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #020617;
-      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    }
-    #container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: Monospace; }
+    #container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+    /* 中央テキストオーバーレイ */
     .content-overlay {
       position: absolute;
       top: 50%;
@@ -43,8 +27,6 @@
       letter-spacing: 0.25em;
       margin-bottom: 1.5rem;
       text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 10px rgba(56, 189, 248, 0.6);
-      opacity: 0;
-      animation: waterEmerge 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
     }
     p.sub-text {
       font-size: 1.25rem;
@@ -52,26 +34,18 @@
       line-height: 1.8;
       color: rgba(230, 245, 255, 0.95);
       text-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 0 0 8px rgba(56, 189, 248, 0.4);
-      opacity: 0;
-      animation: waterEmerge 2.5s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
     }
-    @keyframes waterEmerge {
-      0% {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-        filter: blur(12px);
-      }
-      50% {
-        filter: blur(4px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0px);
-      }
-    }
+    /* lil-guiの調整 */
+    .lil-gui.root { z-index: 20 !important; top: 10px; right: 10px; }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
 
@@ -82,220 +56,264 @@
     <p class="sub-text">信頼と実績でビジネスの未来をサポートします</p>
   </div>
 
-  <script>
-    window.addEventListener('load', () => {
-      const container = document.getElementById('container');
-      const WIDTH = 128;
-      const BOUNDS = 512;
+  <script type="module">
+    import * as THREE from 'three';
+    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+    import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
+    import { SimplexNoise } from 'three/addons/math/SimplexNoise.js';
 
-      // 1. Scene / Camera / Renderer
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3000);
-      camera.position.set(0, 200, 320);
-      camera.lookAt(0, 0, 0);
+    // Texture width for simulation
+    const WIDTH = 128;
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setClearColor(0x020617, 1);
-      container.appendChild(renderer.domElement);
+    // Water size in world units
+    const BOUNDS = 512;
+    const BOUNDS_HALF = BOUNDS / 2;
 
-      // 2. GPGPU Simulation Render Targets (Ping-Pong Buffer)
-      const renderTargetParams = {
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        minFilter: THREE.NearestFilter,
-        magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat,
-        type: THREE.HalfFloatType
+    let container;
+    let camera, scene, renderer;
+    let mouseMoved = false;
+    const mouseCoords = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+
+    let waterMesh;
+    let meshRay;
+    let gpuCompute;
+    let heightmapVariable;
+    let waterUniforms;
+    let smoothWaterUniforms;
+    let readWaterUniforms;
+    let readWaterShader;
+
+    // lil-gui
+    const effectController = {
+      mouseSize: 20.0,
+      viscosity: 0.98,
+      waveHeight: 0.3,
+    };
+
+    const simplex = new SimplexNoise();
+
+    init();
+    animate();
+
+    function init() {
+      container = document.getElementById( 'container' );
+
+      camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+      camera.position.set( 0, 200, 350 );
+      camera.lookAt( 0, 0, 0 );
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color( 0xa0a0a0 );
+
+      const sun = new THREE.DirectionalLight( 0xFFFFFF, 3.0 );
+      sun.position.set( 300, 400, 300 );
+      scene.add( sun );
+
+      const ambient = new THREE.AmbientLight( 0x888888 );
+      scene.add( ambient );
+
+      renderer = new THREE.WebGLRenderer( { antialias: true } );
+      renderer.setPixelRatio( window.devicePixelRatio );
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      container.appendChild( renderer.domElement );
+
+      initWater();
+      initGUI();
+
+      window.addEventListener( 'resize', onWindowResize );
+      window.addEventListener( 'pointermove', onPointerMove );
+    }
+
+    function initWater() {
+      const materialColor = 0x004466;
+
+      const geometry = new THREE.PlaneGeometry( BOUNDS, BOUNDS, WIDTH - 1, WIDTH - 1 );
+
+      // Material for water surface
+      waterUniforms = {
+        'color': { value: new THREE.Color( materialColor ) },
+        'heightmap': { value: null }
       };
 
-      let gpuRenderTarget1 = new THREE.WebGLRenderTarget(WIDTH, WIDTH, renderTargetParams);
-      let gpuRenderTarget2 = new THREE.WebGLRenderTarget(WIDTH, WIDTH, renderTargetParams);
-
-      // GPGPU Heightmap Shader
-      const heightmapShaderMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          'heightmap': { value: null },
-          'mousePos': { value: new THREE.Vector2(-1.0, -1.0) },
-          'mouseSize': { value: 0.04 },
-          'viscosity': { value: 0.97 }
-        },
-        vertexShader: `
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform sampler2D heightmap;
-          uniform vec2 mousePos;
-          uniform float mouseSize;
-          uniform float viscosity;
-          varying vec2 vUv;
-
-          void main() {
-            vec2 cellSize = vec2(1.0 / 128.0);
-
-            // 境界チェック（端のノイズ・破綻防止）
-            if (vUv.x < cellSize.x || vUv.x > 1.0 - cellSize.x ||
-                vUv.y < cellSize.y || vUv.y > 1.0 - cellSize.y) {
-              gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-              return;
-            }
-
-            vec4 val = texture2D(heightmap, vUv);
-
-            float north = texture2D(heightmap, vUv + vec2(0.0, cellSize.y)).r;
-            float south = texture2D(heightmap, vUv + vec2(0.0, -cellSize.y)).r;
-            float east = texture2D(heightmap, vUv + vec2(cellSize.x, 0.0)).r;
-            float west = texture2D(heightmap, vUv + vec2(-cellSize.x, 0.0)).r;
-
-            // 2D 波動方程式の計算
-            float newHeight = (north + south + east + west) * 0.5 - val.g;
-            newHeight *= viscosity;
-
-            // マウス位置の有効判定（-1.0で非検出）
-            if (mousePos.x >= 0.0 && mousePos.y >= 0.0) {
-              float dist = distance(vUv, mousePos);
-              if (dist < mouseSize) {
-                newHeight += (1.0 - dist / mouseSize) * 6.0;
-              }
-            }
-
-            gl_FragColor = vec4(newHeight, val.r, 0.0, 1.0);
-          }
-        `
-      });
-
-      const gpuScene = new THREE.Scene();
-      const gpuCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const gpuQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), heightmapShaderMaterial);
-      gpuScene.add(gpuQuad);
-
-      // 初期化用シェーダー
-      const clearShader = new THREE.ShaderMaterial({
-        vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
-        fragmentShader: `void main() { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); }`
-      });
-      const clearQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), clearShader);
-      const clearScene = new THREE.Scene();
-      clearScene.add(clearQuad);
-
-      renderer.setRenderTarget(gpuRenderTarget1);
-      renderer.render(clearScene, gpuCamera);
-      renderer.setRenderTarget(gpuRenderTarget2);
-      renderer.render(clearScene, gpuCamera);
-      renderer.setRenderTarget(null);
-
-      // 3. Visible Water Mesh & Material
-      const geometry = new THREE.PlaneGeometry(BOUNDS, BOUNDS, WIDTH, WIDTH);
-      
       const waterMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          'heightmap': { value: null },
-          'waterColor': { value: new THREE.Color(0x0284c7) },
-          'sparkleColor': { value: new THREE.Color(0x38bdf8) }
-        },
+        uniforms: waterUniforms,
         vertexShader: `
           uniform sampler2D heightmap;
-          varying vec3 vWorldNormal;
-          varying vec3 vViewDir;
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
 
           void main() {
-            vec4 hVal = texture2D(heightmap, uv);
-            vec3 pos = vec3(position.x, position.y, hVal.r * 2.0);
+            vec4 heightmapValue = texture2D( heightmap, uv );
+            vec3 transformed = vec3( position.x, position.y, heightmapValue.r );
 
-            vec2 du = vec2(1.0 / 128.0, 0.0);
-            vec2 dv = vec2(0.0, 1.0 / 128.0);
-            float c = hVal.r;
-            float r = texture2D(heightmap, uv + du).r;
-            float t = texture2D(heightmap, uv + dv).r;
-            
-            vec3 localNormal = normalize(vec3((c - r) * 10.0, (c - t) * 10.0, 1.0));
-            vWorldNormal = normalize(mat3(modelMatrix) * localNormal);
+            vec2 du = vec2( 1.0 / 128.0, 0.0 );
+            vec2 dv = vec2( 0.0, 1.0 / 128.0 );
+            float c = heightmapValue.r;
+            float r = texture2D( heightmap, uv + du ).r;
+            float t = texture2D( heightmap, uv + dv ).r;
+            vNormal = normalize( vec3( c - r, c - t, 1.0 ) );
 
-            vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
-            vViewDir = normalize(cameraPosition - worldPosition.xyz);
-
-            gl_Position = projectionMatrix * viewMatrix * worldPosition;
+            vec4 mvPosition = modelViewMatrix * vec4( transformed, 1.0 );
+            vViewPosition = - mvPosition.xyz;
+            gl_Position = projectionMatrix * mvPosition;
           }
         `,
         fragmentShader: `
-          uniform vec3 waterColor;
-          uniform vec3 sparkleColor;
-          varying vec3 vWorldNormal;
-          varying vec3 vViewDir;
+          uniform vec3 color;
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
 
           void main() {
-            vec3 normal = normalize(vWorldNormal);
-            vec3 lightDir = normalize(vec3(0.4, 0.8, 0.5));
-
-            float diff = max(dot(normal, lightDir), 0.2);
-            vec3 reflectDir = reflect(-lightDir, normal);
-            float spec = pow(max(dot(vViewDir, reflectDir), 0.0), 32.0);
-
-            float fresnel = pow(1.0 - max(dot(vViewDir, normal), 0.0), 3.0);
-
-            vec3 base = mix(waterColor * diff, vec3(0.02, 0.15, 0.35), fresnel);
-            vec3 finalColor = base + sparkleColor * spec * 1.8;
-
-            gl_FragColor = vec4(finalColor, 0.92);
-          }
-        `,
+            vec3 normal = normalize( vNormal );
+            vec3 lightDir = normalize( vec3( 0.5, 1.0, 0.75 ) );
+            float diff = max( dot( normal, lightDir ), 0.2 );
+            vec3 reflectDir = reflect( -lightDir, normal );
+            float spec = pow( max( dot( normalize( vViewPosition ), reflectDir ), 0.0 ), 16.0 );
+            gl_FragColor = vec4( color * diff + vec3(0.4, 0.6, 0.8) * spec, 0.85 );
+          }`,
         transparent: true
       });
 
-      const waterMesh = new THREE.Mesh(geometry, waterMaterial);
-      waterMesh.rotation.x = -Math.PI / 2;
-      scene.add(waterMesh);
+      // 修正: 二重定義を削除
+      waterMesh = new THREE.Mesh( geometry, waterMaterial );
+      waterMesh.rotation.x = - Math.PI / 2;
+      scene.add( waterMesh );
 
-      // 4. Raycaster Interaction
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
+      // Mesh for raycasting
+      const geometryRay = new THREE.PlaneGeometry( BOUNDS, BOUNDS, 1, 1 );
+      meshRay = new THREE.Mesh( geometryRay, new THREE.MeshBasicMaterial( { visible: false } ) );
+      meshRay.rotation.x = - Math.PI / 2;
+      scene.add( meshRay );
 
-      window.addEventListener('pointermove', (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      // GPGPU compute renderer
+      gpuCompute = new GPUComputationRenderer( WIDTH, WIDTH, renderer );
 
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(waterMesh);
-        if (intersects.length > 0 && intersects[0].uv) {
-          heightmapShaderMaterial.uniforms['mousePos'].value.copy(intersects[0].uv);
-        } else {
-          heightmapShaderMaterial.uniforms['mousePos'].value.set(-1.0, -1.0);
-        }
-      });
-
-      // 5. Main Animation Loop
-      function animate() {
-        requestAnimationFrame(animate);
-
-        // GPGPU Heightmap Compute
-        heightmapShaderMaterial.uniforms['heightmap'].value = gpuRenderTarget1.texture;
-        renderer.setRenderTarget(gpuRenderTarget2);
-        renderer.render(gpuScene, gpuCamera);
-
-        // Ping-Pong Swap
-        const temp = gpuRenderTarget1;
-        gpuRenderTarget1 = gpuRenderTarget2;
-        gpuRenderTarget2 = temp;
-
-        // Main Render
-        waterMaterial.uniforms['heightmap'].value = gpuRenderTarget1.texture;
-        renderer.setRenderTarget(null);
-        renderer.render(scene, camera);
+      if ( renderer.capabilities.isWebGL2 === false ) {
+        gpuCompute.setDataType( THREE.HalfFloatType );
       }
 
-      animate();
+      const heightmap0 = gpuCompute.createTexture();
+      fillTexture( heightmap0 );
 
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    });
+      heightmapVariable = gpuCompute.addVariable( 'heightmap', `
+        uniform vec2 mousePos;
+        uniform float mouseSize;
+        uniform float viscosityConstant;
+        varying vec2 vUv;
+
+        void main() {
+          vec2 cellSize = vec2( 1.0 / 128.0 );
+          vec4 heightmapValue = texture2D( heightmap, vUv );
+
+          // 計算 (波動方程式)
+          float north = texture2D( heightmap, vUv + vec2( 0.0, cellSize.y ) ).r;
+          float south = texture2D( heightmap, vUv + vec2( 0.0, - cellSize.y ) ).r;
+          float east = texture2D( heightmap, vUv + vec2( cellSize.x, 0.0 ) ).r;
+          float west = texture2D( heightmap, vUv + vec2( - cellSize.x, 0.0 ) ).r;
+
+          float newHeight = ( north + south + east + west ) * 0.5 - heightmapValue.g;
+          newHeight *= viscosityConstant;
+
+          // マウス入力
+          if (mousePos.x >= 0.0) {
+            float phase = distance( vUv, mousePos );
+            if ( phase < mouseSize ) {
+              newHeight += (1.0 - phase / mouseSize) * 2.0;
+            }
+          }
+
+          // Rチャンネル: 新しい高さ / Gチャンネル: 過去の高さ（減衰用）
+          gl_FragColor = vec4( newHeight, heightmapValue.r, 0.0, 1.0 );
+        }
+      `, heightmap0 );
+
+      gpuCompute.setVariableDependencies( heightmapVariable, [ heightmapVariable ] );
+
+      heightmapVariable.material.uniforms[ 'mousePos' ] = { value: new THREE.Vector2( -1, -1 ) };
+      heightmapVariable.material.uniforms[ 'mouseSize' ] = { value: 0.05 };
+      heightmapVariable.material.uniforms[ 'viscosityConstant' ] = { value: 0.98 };
+
+      const error = gpuCompute.init();
+      if ( error !== null ) {
+        console.error( error );
+      }
+    }
+
+    function fillTexture( texture ) {
+      const waterMaxHeight = 10;
+      function noise( x, y ) {
+        let multR = waterMaxHeight;
+        let mult = 0.025;
+        let r = 0;
+        for ( let i = 0; i < 15; i ++ ) {
+          r += multR * simplex.noise2D( x * mult, y * mult );
+          multR *= 0.53;
+          mult *= 1.25;
+        }
+        return r;
+      }
+      const pixels = texture.image.data;
+      let p = 0;
+      for ( let j = 0; j < WIDTH; j ++ ) {
+        for (let i = 0; i < WIDTH; i++) {
+          const x = i / WIDTH;
+          const y = j / WIDTH;
+          pixels[p] = noise(x, y);
+          pixels[p + 1] = pixels[p];
+          pixels[p + 2] = 0;
+          pixels[p + 3] = 1;
+          p += 4;
+        }
+      }
+    }
+
+    function initGUI() {
+      const gui = new GUI();
+      gui.add( effectController, 'mouseSize', 1.0, 100.0, 1.0 ).onChange( ( v ) => {
+        heightmapVariable.material.uniforms[ 'mouseSize' ].value = v / BOUNDS;
+      } );
+      gui.add( effectController, 'viscosity', 0.9, 0.999, 0.001 ).onChange( ( v ) => {
+        heightmapVariable.material.uniforms[ 'viscosityConstant' ].value = v;
+      } );
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onPointerMove( event ) {
+      mouseCoords.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouseCoords.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      mouseMoved = true;
+    }
+
+    function animate() {
+      requestAnimationFrame( animate );
+
+      if (mouseMoved) {
+        raycaster.setFromCamera(mouseCoords, camera);
+        const intersects = raycaster.intersectObject(meshRay);
+        if (intersects.length > 0) {
+          const point = intersects[0].point;
+          const u = (point.x + BOUNDS_HALF) / BOUNDS;
+          const v = 1.0 - (point.z + BOUNDS_HALF) / BOUNDS;
+          heightmapVariable.material.uniforms['mousePos'].value.set(u, v);
+        } else {
+          heightmapVariable.material.uniforms['mousePos'].value.set(-1, -1);
+        }
+        mouseMoved = false;
+      } else {
+        heightmapVariable.material.uniforms['mousePos'].value.set(-1, -1);
+      }
+
+      gpuCompute.compute();
+      waterUniforms['heightmap'].value = gpuCompute.getCurrentRenderTarget(heightmapVariable).texture;
+
+      renderer.render( scene, camera );
+    }
   </script>
 </body>
 </html>
