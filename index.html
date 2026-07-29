@@ -58,7 +58,7 @@
   </div>
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260730-16</div>
+  <div id="build">build 20260730-17</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
@@ -167,8 +167,10 @@ function prepareOfficialHtml(html){
   html=replaceRequired(html,'const WIDTH = 128;','const WIDTH = isMobile ? 64 : 128;','water resolution');
   html=replaceRequired(html,'let mousedown = false;',`let mousedown = false;
 			const activePointers = new Map();
-			let pointerCursor = 0;`,'multi pointer state');
-  html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = isMobile ? 8 : 12;','duck count');
+			let pointerCursor = 0;
+			let currentPointer = null;
+			let renderedFrames = 0;`,'multi pointer state');
+  html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = isMobile ? 6 : 12;','duck count');
   html=replaceRequired(html,'createducks();','createducks(); container.dataset.duckCount = String( NUM_DUCK );','duck count probe');
   html=replaceRequired(html,'new THREE.WebGLRenderer( { antialias: true } )',"new THREE.WebGLRenderer( isMobile ? { antialias: false, powerPreference: 'high-performance' } : { antialias: true } )",'renderer');
   html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',"renderer.setPixelRatio( isMobile ? Math.min( window.devicePixelRatio, 1 ) : Math.min( window.devicePixelRatio, 1.75 ) );",'pixel ratio');
@@ -248,13 +250,74 @@ function prepareOfficialHtml(html){
 
 					const pointers = Array.from( activePointers.values() );
 					const pointer = pointers[ pointerCursor ++ % pointers.length ];
+					currentPointer = pointer;
 					mouseCoords.copy( pointer.coords );
 					heightmapVariable.material.uniforms[ 'deep' ].value = effectController.mouseDeep * ( 0.35 + pointer.pressure * 1.65 );
 					container.dataset.appliedDepth = heightmapVariable.material.uniforms[ 'deep' ].value.toFixed( 5 );
 
 				}
+				else {
+
+					currentPointer = null;
+
+				}
 
 				// Set uniforms: mouse interaction`,'pressure and multi touch raycast');
+  html=replaceRequired(html,'const point = intersects[ 0 ].point;',`const point = intersects[ 0 ].point;
+					if ( isMobile && currentPointer ) {
+
+						let nearest = null;
+						let nearestDistance = 0.9;
+						for ( let i = 0; i < ducks.length; i ++ ) {
+
+							const duck = ducks[ i ];
+							const distance = Math.hypot( duck.position.x - point.x, duck.position.z - point.z );
+							if ( distance < nearestDistance ) {
+
+								nearest = duck;
+								nearestDistance = distance;
+
+							}
+
+						}
+						if ( nearest ) {
+
+							nearest.position.x += ( point.x - nearest.position.x ) * 0.42;
+							nearest.position.z += ( point.z - nearest.position.z ) * 0.42;
+							nearest.userData.velocity.multiplyScalar( 0.35 );
+							container.dataset.duckDragCount = String( ( Number( container.dataset.duckDragCount ) || 0 ) + 1 );
+
+						}
+
+					}`,'mobile duck drag');
+  html=replaceRequired(html,`function render() {
+
+				raycast();`,`function render() {
+
+				raycast();
+				container.dataset.frameCount = String( ++ renderedFrames );
+				if ( isMobile && ducks.length ) {
+
+					let screenDuck = null;
+					for ( let i = 0; i < ducks.length; i ++ ) {
+
+						const projected = ducks[ i ].position.clone().project( camera );
+						if ( Math.abs( projected.x ) < 0.9 && Math.abs( projected.y ) < 0.9 ) {
+
+							screenDuck = projected;
+							break;
+
+						}
+
+					}
+					if ( screenDuck ) {
+
+						container.dataset.duckX = ( ( screenDuck.x + 1 ) * 0.5 * window.innerWidth ).toFixed( 1 );
+						container.dataset.duckY = ( ( 1 - screenDuck.y ) * 0.5 * window.innerHeight ).toFixed( 1 );
+
+					}
+
+				}`,'mobile performance and duck probe');
   return html;
 }
 
