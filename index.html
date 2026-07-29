@@ -3,21 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>中央経理センター</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}
     #stage{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
-    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;text-shadow:0 3px 22px rgba(0,0,0,.82)}
-    .overlay-inner{max-width:980px;transform:translateY(-2vh)}
+    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;text-shadow:0 3px 24px rgba(0,0,0,.82)}
+    .overlay-inner{max-width:980px;transform:translateY(-3vh)}
     .yuragi-char{display:inline-block;animation:char-wave 3s ease-in-out infinite;will-change:transform}
     @keyframes char-wave{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(1deg)}}
-    h1{margin:0 0 22px;font-family:"Yu Mincho","YuMincho","Hiragino Mincho ProN","Hiragino Mincho Pro","Noto Serif JP","Times New Roman",serif;font-size:clamp(36px,6vw,82px);font-weight:500;letter-spacing:.16em;line-height:1.28}
-    p{margin:0;font-family:"Yu Mincho","YuMincho","Hiragino Mincho ProN","Hiragino Mincho Pro","Noto Serif JP",serif;font-size:clamp(15px,1.8vw,23px);font-weight:400;line-height:2;letter-spacing:.12em}
-    #ui-toggle{position:fixed;right:18px;bottom:18px;z-index:30;border:1px solid rgba(255,255,255,.42);border-radius:999px;padding:10px 16px;background:rgba(10,18,24,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font:500 13px/1 system-ui,-apple-system,"Helvetica Neue",sans-serif;letter-spacing:.08em;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.24);transition:.2s ease}
-    #ui-toggle:hover{background:rgba(10,18,24,.68);border-color:rgba(255,255,255,.7)}
-    #ui-toggle:focus-visible{outline:2px solid #fff;outline-offset:3px}
-    #status{position:fixed;left:16px;bottom:14px;z-index:20;color:#fff;font:13px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
-    @media(max-width:640px){h1{letter-spacing:.1em}.overlay{padding:18px}#ui-toggle{right:12px;bottom:12px}}
+    h1{margin:0 0 24px;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(38px,6.4vw,88px);font-weight:300;letter-spacing:.2em;line-height:1.25}
+    p{margin:0;font-family:"Noto Serif JP","Yu Mincho","Hiragino Mincho ProN",serif;font-size:clamp(14px,1.65vw,21px);font-weight:300;line-height:2;letter-spacing:.16em}
+    #ui-toggle{position:fixed;left:18px;bottom:18px;z-index:30;border:1px solid rgba(255,255,255,.58);border-radius:999px;padding:11px 17px;background:rgba(6,13,20,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.1em;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.28)}
+    #ui-toggle:hover{background:rgba(6,13,20,.82)}
+    #status{position:fixed;left:18px;bottom:60px;z-index:20;color:#fff;font:12px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
+    @media(max-width:640px){h1{letter-spacing:.12em}.overlay{padding:18px}#ui-toggle{left:12px;bottom:12px}}
   </style>
 </head>
 <body>
@@ -30,7 +35,7 @@
     </div>
   </div>
 
-  <button id="ui-toggle" type="button" aria-pressed="false">パネルを隠す</button>
+  <button id="ui-toggle" type="button" aria-pressed="true">調整パネルを表示</button>
   <div id="status">公式Three.jsを読み込み中…</div>
 
   <script>
@@ -40,7 +45,7 @@
     const stage=document.getElementById('stage');
     const status=document.getElementById('status');
     const toggle=document.getElementById('ui-toggle');
-    let controlsVisible=true;
+    let controlsVisible=false;
 
     function wrapChars(el){
       el.innerHTML=[...el.textContent].map((c,i)=>
@@ -51,18 +56,16 @@
     function setControlsVisible(visible){
       controlsVisible=visible;
       const doc=stage.contentDocument;
-      if(!doc) return;
-      doc.documentElement.classList.toggle('presentation-mode',!visible);
-      toggle.textContent=visible?'パネルを隠す':'パネルを表示';
+      if(doc) doc.documentElement.classList.toggle('presentation-mode',!visible);
+      toggle.textContent=visible?'調整パネルを隠す':'調整パネルを表示';
       toggle.setAttribute('aria-pressed',String(!visible));
     }
 
     wrapChars(document.getElementById('title'));
     wrapChars(document.getElementById('lead'));
-
     toggle.addEventListener('click',()=>setControlsVisible(!controlsVisible));
 
-    fetch(SOURCE,{cache:'no-store'})
+    fetch(`${SOURCE}?v=202607292147`,{cache:'no-store'})
       .then(response=>{
         if(!response.ok) throw new Error(`公式HTML HTTP ${response.status}`);
         return response.text();
@@ -72,12 +75,12 @@
         const injectedStyle=`<style>
           html.presentation-mode #info,
           html.presentation-mode .lil-gui,
-          html.presentation-mode .stats{display:none!important}
+          html.presentation-mode body > div[style*="position: fixed"][style*="top: 0px"]{display:none!important}
         </style>`;
         html=html.replace(/<head([^>]*)>/i,`<head$1>${base}${injectedStyle}`);
         stage.addEventListener('load',()=>{
           status.textContent='';
-          setControlsVisible(true);
+          setControlsVisible(false);
         },{once:true});
         stage.srcdoc=html;
       })
