@@ -3,26 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js GPGPU Water</title>
-  <meta http-equiv="refresh" content="0; url=https://threejs.org/examples/webgl_gpgpu_water.html" />
+  <title>中央経理センター</title>
   <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      background: #111;
-      color: #fff;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-    a { color: #8fd3ff; }
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000}
+    #stage{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
+    .overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;color:#fff;text-align:center;padding:24px;text-shadow:0 2px 18px rgba(0,0,0,.75)}
+    .overlay-inner{max-width:920px}
+    .yuragi-char{display:inline-block;animation:char-wave 3s ease-in-out infinite}
+    @keyframes char-wave{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(1deg)}}
+    h1{margin:0 0 18px;font-size:clamp(34px,6vw,78px);font-weight:500;letter-spacing:.18em}
+    p{margin:0;font-size:clamp(15px,2vw,24px);line-height:1.9;letter-spacing:.1em}
+    #status{position:fixed;left:16px;bottom:14px;z-index:20;color:#fff;font:13px/1.5 system-ui,sans-serif;text-shadow:0 1px 4px #000}
   </style>
-  <script>
-    window.location.replace('https://threejs.org/examples/webgl_gpgpu_water.html');
-  </script>
 </head>
 <body>
-  <p>Three.js公式GPGPU Waterを開いています。<br><a href="https://threejs.org/examples/webgl_gpgpu_water.html">表示されない場合はこちら</a></p>
+  <iframe id="stage" title="Three.js GPGPU Water"></iframe>
+  <div class="overlay">
+    <div class="overlay-inner">
+      <h1 id="title">中央経理センター</h1>
+      <p id="lead">信頼と実績で、企業の経理と経営を支える。</p>
+    </div>
+  </div>
+  <div id="status">公式Three.jsを読み込み中…</div>
+  <script>
+    const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
+    const ROOT=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}`;
+    const EX=`${ROOT}/examples`;
+    const source=`${EX}/webgl_gpgpu_water.html`;
+    const stage=document.getElementById('stage');
+    const status=document.getElementById('status');
+
+    function wrapChars(el){
+      el.innerHTML=[...el.textContent].map((c,i)=>c===' '?c:`<span class="yuragi-char" style="animation-delay:${(i%9)*.12}s">${c}</span>`).join('');
+    }
+    wrapChars(document.getElementById('title'));
+    wrapChars(document.getElementById('lead'));
+
+    fetch(source)
+      .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text()})
+      .then(html=>{
+        html=html
+          .replace('href="main.css"',`href="${EX}/main.css"`)
+          .replace('"three": "../build/three.module.js"',`"three": "${ROOT}/build/three.module.js"`)
+          .replace('"three/addons/": "./jsm/"',`"three/addons/": "${EX}/jsm/"`)
+          .replace("setPath( './textures/equirectangular/' )",`setPath( '${EX}/textures/equirectangular/' )`)
+          .replace("setPath( 'models/gltf/' )",`setPath( '${EX}/models/gltf/' )`);
+        stage.srcdoc=html;
+        status.textContent='';
+      })
+      .catch(err=>{
+        status.textContent='読み込みエラー: '+err.message;
+      });
+  </script>
 </body>
 </html>
