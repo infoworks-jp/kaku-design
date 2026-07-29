@@ -58,7 +58,7 @@
   </div>
   <button id="ui-toggle" type="button" aria-pressed="false" disabled>調整パネルを表示</button>
   <div id="status" role="status" aria-live="polite">公式Three.jsを読み込み中…</div>
-  <div id="build">build 20260730-15</div>
+  <div id="build">build 20260730-16</div>
 <script>
 const SHA='8e8fb783d8e85bce99545674eb016fa4e8cb7abc';
 const EX=`https://cdn.jsdelivr.net/gh/mrdoob/three.js@${SHA}/examples/`;
@@ -85,6 +85,14 @@ function dispatchWaterPointer(type,data){
     pressure:type==='pointerup'?0:data.pressure
   }}));
 }
+function dispatchWaterGesture(data){
+  const doc=stage.contentDocument;
+  const target=doc?.getElementById('water-container');
+  const CustomEventClass=stage.contentWindow?.CustomEvent;
+  if(!target||!CustomEventClass)return;
+  target.dispatchEvent(new CustomEventClass('watergesture',{detail:data}));
+}
+let mobileGestureState=null;
 function relayMobileTouches(event){
   const types={touchstart:'pointerdown',touchmove:'pointermove',touchend:'pointerup',touchcancel:'pointerup'};
   const type=types[event.type];
@@ -99,6 +107,22 @@ function relayMobileTouches(event){
       width:(touch.radiusX||5)*2,
       height:(touch.radiusY||5)*2
     });
+  }
+  if(event.touches.length===2){
+    const [a,b]=event.touches;
+    const distance=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+    const centerX=(a.clientX+b.clientX)/2;
+    const centerY=(a.clientY+b.clientY)/2;
+    if(mobileGestureState&&event.type==='touchmove'){
+      dispatchWaterGesture({
+        scale:distance/mobileGestureState.distance,
+        dx:centerX-mobileGestureState.centerX,
+        dy:centerY-mobileGestureState.centerY
+      });
+    }
+    mobileGestureState={distance,centerX,centerY};
+  }else{
+    mobileGestureState=null;
   }
 }
 const hero=document.querySelector('.hero');
@@ -144,7 +168,8 @@ function prepareOfficialHtml(html){
   html=replaceRequired(html,'let mousedown = false;',`let mousedown = false;
 			const activePointers = new Map();
 			let pointerCursor = 0;`,'multi pointer state');
-  html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = isMobile ? 4 : 12;','duck count');
+  html=replaceRequired(html,'const NUM_DUCK = 12;','const NUM_DUCK = isMobile ? 8 : 12;','duck count');
+  html=replaceRequired(html,'createducks();','createducks(); container.dataset.duckCount = String( NUM_DUCK );','duck count probe');
   html=replaceRequired(html,'new THREE.WebGLRenderer( { antialias: true } )',"new THREE.WebGLRenderer( isMobile ? { antialias: false, powerPreference: 'high-performance' } : { antialias: true } )",'renderer');
   html=replaceRequired(html,'renderer.setPixelRatio( window.devicePixelRatio );',"renderer.setPixelRatio( isMobile ? Math.min( window.devicePixelRatio, 1 ) : Math.min( window.devicePixelRatio, 1.75 ) );",'pixel ratio');
   html=replaceRequired(html,'stats = new Stats();',"stats = new Stats(); stats.dom.id = 'three-stats'; stats.dom.style.setProperty('display','none','important');",'Stats');
@@ -152,12 +177,28 @@ function prepareOfficialHtml(html){
   html=replaceRequired(html,"container.addEventListener( 'pointerup', onPointerUp );",`container.addEventListener( 'pointerup', onPointerUp );
 				container.addEventListener( 'waterpointerdown', event => onPointerDown( event.detail ) );
 				container.addEventListener( 'waterpointermove', event => onPointerMove( event.detail ) );
-				container.addEventListener( 'waterpointerup', event => onPointerUp( event.detail ) );`,'isolated mobile water events');
+				container.addEventListener( 'waterpointerup', event => onPointerUp( event.detail ) );
+				container.addEventListener( 'watergesture', event => onWaterGesture( event.detail ) );`,'isolated mobile water events');
   html=replaceRequired(html,`function onPointerDown() {
 
 				mousedown = true;
 
-			}`,`function updatePointer( event ) {
+			}`,`function onWaterGesture( gesture ) {
+
+				const zoom = THREE.MathUtils.clamp( 1 / gesture.scale, 0.9, 1.1 );
+				const distance = THREE.MathUtils.clamp( camera.position.length() * zoom, 2.4, 7 );
+				camera.position.setLength( distance );
+				camera.position.x -= gesture.dx * 0.004;
+				camera.position.y = THREE.MathUtils.clamp( camera.position.y + gesture.dy * 0.003, 1.2, 4.5 );
+				camera.lookAt( 0, 0, 0 );
+				container.dataset.gestureCount = String( ( Number( container.dataset.gestureCount ) || 0 ) + 1 );
+				container.dataset.cameraDistance = camera.position.length().toFixed( 3 );
+				container.dataset.cameraX = camera.position.x.toFixed( 3 );
+				container.dataset.cameraY = camera.position.y.toFixed( 3 );
+
+			}
+
+			function updatePointer( event ) {
 
 				const dom = renderer.domElement;
 				const pressure = Number.isFinite( event.pressure ) && event.pressure > 0 ? event.pressure : 0.5;
