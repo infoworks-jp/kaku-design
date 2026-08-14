@@ -1,0 +1,31 @@
+name: Verify GENBA AI
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'genba-ai/**'
+      - '.github/workflows/verify-genba-ai.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Browser QA
+        run: node genba-ai/verify.mjs
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: genba-ai-evidence
+          path: genba-ai-evidence/
+          retention-days: 30
