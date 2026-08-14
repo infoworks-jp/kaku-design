@@ -17,9 +17,10 @@ jobs:
           node-version: 'lts/*'
       - name: Install Playwright
         run: |
-          npm init -y
-          npm install playwright
-          npx playwright install --with-deps chromium
+          mkdir -p /tmp/genbaqa
+          npm init -y --prefix /tmp/genbaqa
+          npm install --prefix /tmp/genbaqa playwright
+          /tmp/genbaqa/node_modules/.bin/playwright install --with-deps chromium
       - name: Browser QA
         run: node genba-ai/verify.mjs
       - name: Upload evidence
