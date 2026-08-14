@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+const { chromium } = await import('/tmp/genbaqa/node_modules/playwright/index.mjs');
 import fs from 'node:fs';
 const URL='https://infoworks-jp.github.io/kaku-design/genba-ai/';
 const OUT='genba-ai-evidence';
