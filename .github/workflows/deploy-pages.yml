@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - index.html
+      - kaku-office-src/**
+      - kaku-office/**
       - .github/workflows/deploy-pages.yml
   workflow_dispatch:
 
@@ -28,8 +30,10 @@ jobs:
       - uses: actions/configure-pages@v5
       - name: Prepare static site
         run: |
-          mkdir -p _site
+          mkdir -p _site/kaku-office
           cp index.html _site/index.html
+          cat kaku-office-src/chunk-*.txt > _site/kaku-office/index.html
+          cp kaku-office/sitemap.xml _site/kaku-office/sitemap.xml
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
